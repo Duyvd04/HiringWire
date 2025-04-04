@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.hiringwire.entity.OTP;
 
-public interface OTPRepository extends JpaRepository<OTP, String> {
+public interface IOTPRepository extends JpaRepository<OTP, String> {
 	List<OTP> findByCreationTimeBefore(LocalDateTime expiryTime);
 }

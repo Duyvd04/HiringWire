@@ -26,6 +26,8 @@ public class Profile {
 	private String company;
 	private String location;
 	private String about;
+	@Lob
+	@Column(name = "picture", columnDefinition = "LONGBLOB")
 	private byte[] picture;
 	private Long totalExp;
 

@@ -16,20 +16,16 @@ import com.hiringwire.dto.NotificationDTO;
 import com.hiringwire.entity.Applicant;
 import com.hiringwire.entity.Job;
 import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.repository.JobRepository;
-import com.hiringwire.utility.Utilities;
+import com.hiringwire.repository.IJobRepository;
 
 @Service("jobService")
 public class JobServiceImpl implements JobService {
 
 	@Autowired
-	private JobRepository jobRepository;
+	private IJobRepository IJobRepository;
 
 	@Autowired
 	private NotificationService notificationService;
-
-	@Autowired
-	private Utilities utilities; // Add this
 
 	@Override
 	public JobDTO postJob(JobDTO jobDTO) throws HiringWireException {
@@ -40,32 +36,32 @@ public class JobServiceImpl implements JobService {
 			notiDto.setMessage("Job Posted Successfully for " + jobDTO.getJobTitle() + " at " + jobDTO.getCompany());
 			notiDto.setUserId(jobDTO.getPostedBy());
 			// ID will be set after save, so set route later
-			Job savedJob = jobRepository.save(jobDTO.toEntity());
+			Job savedJob = IJobRepository.save(jobDTO.toEntity());
 			notiDto.setRoute("/posted-jobs/" + savedJob.getId());
 			notificationService.sendNotification(notiDto);
 			return savedJob.toDTO();
 		} else {
-			Job job = jobRepository.findById(jobDTO.getId())
+			Job job = IJobRepository.findById(jobDTO.getId())
 					.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
 			if (job.getJobStatus().equals(JobStatus.DRAFT) || jobDTO.getJobStatus().equals(JobStatus.CLOSED))
 				jobDTO.setPostTime(LocalDateTime.now());
-			return jobRepository.save(jobDTO.toEntity()).toDTO();
+			return IJobRepository.save(jobDTO.toEntity()).toDTO();
 		}
 	}
 
 	@Override
 	public List<JobDTO> getAllJobs() throws HiringWireException {
-		return jobRepository.findAll().stream().map((x) -> x.toDTO()).toList();
+		return IJobRepository.findAll().stream().map((x) -> x.toDTO()).toList();
 	}
 
 	@Override
 	public JobDTO getJob(Long id) throws HiringWireException {
-		return jobRepository.findById(id).orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND")).toDTO();
+		return IJobRepository.findById(id).orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND")).toDTO();
 	}
 
 	@Override
 	public void applyJob(Long id, ApplicantDTO applicantDTO) throws HiringWireException {
-		Job job = jobRepository.findById(id).orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
+		Job job = IJobRepository.findById(id).orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
 		List<Applicant> applicants = job.getApplicants();
 		if (applicants == null) applicants = new ArrayList<>();
 		if (applicants.stream().anyMatch((x) -> x.getApplicantId().equals(applicantDTO.getApplicantId())))
@@ -73,23 +69,23 @@ public class JobServiceImpl implements JobService {
 		applicantDTO.setApplicationStatus(ApplicationStatus.APPLIED);
 		applicants.add(applicantDTO.toEntity());
 		job.setApplicants(applicants);
-		jobRepository.save(job);
+		IJobRepository.save(job);
 	}
 
 	@Override
 	public List<JobDTO> getHistory(Long id, ApplicationStatus applicationStatus) {
-		return jobRepository.findByApplicantIdAndApplicationStatus(id, applicationStatus)
+		return IJobRepository.findByApplicantIdAndApplicationStatus(id, applicationStatus)
 				.stream().map((x) -> x.toDTO()).toList();
 	}
 
 	@Override
 	public List<JobDTO> getJobsPostedBy(Long id) throws HiringWireException {
-		return jobRepository.findByPostedBy(id).stream().map((x) -> x.toDTO()).toList();
+		return IJobRepository.findByPostedBy(id).stream().map((x) -> x.toDTO()).toList();
 	}
 
 	@Override
 	public void changeAppStatus(Application application) throws HiringWireException {
-		Job job = jobRepository.findById(application.getId())
+		Job job = IJobRepository.findById(application.getId())
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
 		List<Applicant> apps = job.getApplicants().stream().map((x) -> {
 			if (application.getApplicantId().equals(x.getApplicantId())) {
@@ -111,6 +107,11 @@ public class JobServiceImpl implements JobService {
 			return x;
 		}).toList();
 		job.setApplicants(apps);
-		jobRepository.save(job);
+		IJobRepository.save(job);
+	}
+
+	@Override
+	public void deleteJob(Long id) throws HiringWireException {
+		IJobRepository.deleteById(id);
 	}
 }

@@ -6,10 +6,7 @@ import java.util.Base64;
 import com.hiringwire.dto.ApplicantDTO;
 import com.hiringwire.dto.ApplicationStatus;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +23,8 @@ public class Applicant {
 	private String email;
 	private Long phone;
 	private String website;
+	@Lob
+	@Column(name = "resume", columnDefinition = "LONGBLOB")
 	private byte[] resume;
 	private String coverLetter;
 	private LocalDateTime timestamp;

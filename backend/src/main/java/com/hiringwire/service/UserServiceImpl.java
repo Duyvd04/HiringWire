@@ -18,8 +18,8 @@ import com.hiringwire.dto.UserDTO;
 import com.hiringwire.entity.OTP;
 import com.hiringwire.entity.User;
 import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.repository.OTPRepository;
-import com.hiringwire.repository.UserRepository;
+import com.hiringwire.repository.IOTPRepository;
+import com.hiringwire.repository.IUserRepository;
 import com.hiringwire.utility.Data;
 import com.hiringwire.utility.Utilities;
 
@@ -28,10 +28,10 @@ import jakarta.mail.internet.MimeMessage;
 @Service("userService")
 public class UserServiceImpl implements UserService {
 	@Autowired
-	private UserRepository userRepository;
+	private IUserRepository IUserRepository;
 
 	@Autowired
-	private OTPRepository otpRepository;
+	private IOTPRepository IOTPRepository;
 
 	@Autowired
 	private ProfileService profileService;
@@ -50,19 +50,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO registerUser(UserDTO userDTO) throws HiringWireException {
-		Optional<User> optional = userRepository.findByEmail(userDTO.getEmail());
+		Optional<User> optional = IUserRepository.findByEmail(userDTO.getEmail());
 		if (optional.isPresent())
 			throw new HiringWireException("USER_FOUND");
 		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 		userDTO.setProfileId(profileService.createProfile(userDTO));
-		User user = userRepository.save(userDTO.toEntity());
+		User user = IUserRepository.save(userDTO.toEntity());
 		user.setPassword(null);
 		return user.toDTO();
 	}
 
 	@Override
 	public UserDTO loginUser(LoginDTO loginDTO) throws HiringWireException {
-		User user = userRepository.findByEmail(loginDTO.getEmail())
+		User user = IUserRepository.findByEmail(loginDTO.getEmail())
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
 			throw new HiringWireException("INVALID_CREDENTIALS");
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Boolean sendOTP(String email) throws Exception {
-		User user = userRepository.findByEmail(email)
+		User user = IUserRepository.findByEmail(email)
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 		MimeMessage mm = mailSender.createMimeMessage();
 		MimeMessageHelper message = new MimeMessageHelper(mm, true);
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 		message.setSubject("Your OTP Code");
 		String generatedOtp = utilities.generateOTP(); // Updated to instance call
 		OTP otp = new OTP(email, generatedOtp, LocalDateTime.now());
-		otpRepository.save(otp);
+		IOTPRepository.save(otp);
 		message.setText(Data.getMessageBody(generatedOtp, user.getName()), true);
 		mailSender.send(mm);
 		return true;
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Boolean verifyOtp(String email, String otp) throws HiringWireException {
-		OTP otpEntity = otpRepository.findById(email)
+		OTP otpEntity = IOTPRepository.findById(email)
 				.orElseThrow(() -> new HiringWireException("OTP_NOT_FOUND"));
 		if (!otpEntity.getOtpCode().equals(otp))
 			throw new HiringWireException("OTP_INCORRECT");
@@ -98,19 +98,19 @@ public class UserServiceImpl implements UserService {
 	@Scheduled(fixedRate = 60000)
 	public void removeExpiredOTPs() {
 		LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(5);
-		List<OTP> expiredOTPs = otpRepository.findByCreationTimeBefore(expiryTime);
+		List<OTP> expiredOTPs = IOTPRepository.findByCreationTimeBefore(expiryTime);
 		if (!expiredOTPs.isEmpty()) {
-			otpRepository.deleteAll(expiredOTPs);
+			IOTPRepository.deleteAll(expiredOTPs);
 			System.out.println("Removed " + expiredOTPs.size() + " expired OTPs");
 		}
 	}
 
 	@Override
 	public ResponseDTO changePassword(LoginDTO loginDTO) throws HiringWireException {
-		User user = userRepository.findByEmail(loginDTO.getEmail())
+		User user = IUserRepository.findByEmail(loginDTO.getEmail())
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 		user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
-		userRepository.save(user);
+		IUserRepository.save(user);
 		NotificationDTO noti = new NotificationDTO();
 		noti.setUserId(user.getId());
 		noti.setMessage("Password Reset Successful");
@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO getUserByEmail(String email) throws HiringWireException {
-		return userRepository.findByEmail(email)
+		return IUserRepository.findByEmail(email)
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND")).toDTO();
 	}
 }

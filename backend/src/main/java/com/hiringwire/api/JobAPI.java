@@ -6,13 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.hiringwire.dto.ApplicantDTO;
 import com.hiringwire.dto.Application;
@@ -81,6 +75,10 @@ public class JobAPI {
 		return new ResponseEntity<>(new ResponseDTO("Status Chhanged Successfully"), HttpStatus.OK);
 	}
 	
-	
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<ResponseDTO>deleteJob(@PathVariable Long id) throws HiringWireException{
+		jobService.deleteJob(id);
+		return new ResponseEntity<>(new ResponseDTO("Delete Successfully"),HttpStatus.OK);
+	}
 	
 }
