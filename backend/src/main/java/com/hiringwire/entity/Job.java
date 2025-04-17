@@ -23,7 +23,8 @@ public class Job {
     private String jobTitle;
     private String company;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    @JoinColumn(name = "job_id")
     private List<Applicant> applicants;
 
     private String about;

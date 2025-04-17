@@ -14,18 +14,34 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplicantDTO {
+	private Long id;
 	private Long applicantId;
 	private String name;
 	private String email;
 	private Long phone;
 	private String website;
 	private String resume;
+	private String extractedResume;
 	private String coverLetter;
 	private LocalDateTime timestamp;
 	private ApplicationStatus applicationStatus;
 	private LocalDateTime interviewTime;
-	
+
 	public Applicant toEntity() {
-		return new Applicant(this.getApplicantId(), this.getName(), this.getEmail(), this.getPhone(), this.getWebsite(), this.getResume()!=null?Base64.getDecoder().decode(this.getResume()):null, this.getCoverLetter(),this.getTimestamp(), this.getApplicationStatus(), this.interviewTime);
+		Applicant applicant = new Applicant();
+		applicant.setId(this.getId());
+		applicant.setApplicantId(this.getApplicantId());
+		applicant.setName(this.getName());
+		applicant.setEmail(this.getEmail());
+		applicant.setPhone(this.getPhone());
+		applicant.setWebsite(this.getWebsite());
+		applicant.setResume(this.getResume() != null ? Base64.getDecoder().decode(this.getResume()) : null);
+		applicant.setExtractedResume(this.getExtractedResume() != null ? Base64.getDecoder().decode(this.getExtractedResume()) : null);
+		applicant.setCoverLetter(this.getCoverLetter());
+		applicant.setTimestamp(this.getTimestamp());
+		applicant.setApplicationStatus(this.getApplicationStatus());
+		applicant.setInterviewTime(this.getInterviewTime());
+		return applicant;
 	}
+
 }

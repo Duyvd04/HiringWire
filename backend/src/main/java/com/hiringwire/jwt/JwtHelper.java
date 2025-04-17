@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtHelper {
-	private String secret = "";
+	private String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";
 
 	// Token expiration time in milliseconds (e.g., 1 hour = 3600000 ms)
 	private static final long JWT_TOKEN_VALIDITY = 36000000;

@@ -4,6 +4,7 @@ import com.hiringwire.dto.ApplicantDTO;
 import com.hiringwire.dto.Application;
 import com.hiringwire.dto.ApplicationStatus;
 import com.hiringwire.dto.JobDTO;
+import com.hiringwire.entity.Job;
 import com.hiringwire.exception.HiringWireException;
 
 import java.util.List;
@@ -26,4 +27,5 @@ public interface JobService {
     void changeAppStatus(Application application) throws HiringWireException;
 
 	void deleteJob(Long id) throws HiringWireException;
+    Job getJobWithApplicant(Long jobId, Long applicantId) throws HiringWireException;
 }

@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,9 +30,10 @@ public class UserDTO {
 
 	private AccountType accountType;
 	private Long profileId;
-
+	private AccountStatus accountStatus;
+	private LocalDateTime lastLoginDate;
 	public User toEntity() {
-		return new User(this.id, this.name, this.email, this.password, this.accountType, this.profileId);
+		return new User(this.id, this.name, this.email, this.password, this.accountType, this.profileId, this.accountStatus, this.lastLoginDate);
 	}
 
 }

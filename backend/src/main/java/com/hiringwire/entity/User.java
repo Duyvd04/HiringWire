@@ -1,5 +1,6 @@
 package com.hiringwire.entity;
 
+import com.hiringwire.dto.AccountStatus;
 import jakarta.persistence.*;
 
 import com.hiringwire.dto.AccountType;
@@ -8,6 +9,8 @@ import com.hiringwire.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -30,7 +33,12 @@ public class User {
 
 	private Long profileId;
 
+	private AccountStatus accountStatus;
+
+	private LocalDateTime lastLoginDate;
+
+
 	public UserDTO toDTO() {
-		return new UserDTO(this.id, this.name, this.email, this.password, this.accountType, this.profileId);
+		return new UserDTO(this.id, this.name, this.email, this.password, this.accountType, this.profileId, this.accountStatus, this.lastLoginDate);
 	}
 }

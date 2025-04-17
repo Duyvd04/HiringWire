@@ -18,7 +18,8 @@ import lombok.NoArgsConstructor;
 public class Applicant {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long applicantId;
+	private Long id;
+	private Long applicantId;  // This is the user ID
 	private String name;
 	private String email;
 	private Long phone;
@@ -26,23 +27,33 @@ public class Applicant {
 	@Lob
 	@Column(name = "resume", columnDefinition = "LONGBLOB")
 	private byte[] resume;
+	@Lob
+	@Column(name = "extracted_resume", columnDefinition = "LONGBLOB")
+	private byte[] extractedResume;
 	private String coverLetter;
 	private LocalDateTime timestamp;
 	private ApplicationStatus applicationStatus;
 	private LocalDateTime interviewTime;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "job_id")
+	private Job job;
+
 	public ApplicantDTO toDTO() {
 		return new ApplicantDTO(
+				this.getId(),
 				this.getApplicantId(),
 				this.getName(),
 				this.getEmail(),
 				this.getPhone(),
 				this.getWebsite(),
 				this.getResume() != null ? Base64.getEncoder().encodeToString(this.getResume()) : null,
+				this.getExtractedResume() != null ? Base64.getEncoder().encodeToString(this.getExtractedResume()) : null,
 				this.getCoverLetter(),
 				this.getTimestamp(),
 				this.getApplicationStatus(),
 				this.interviewTime
 		);
 	}
+
 }

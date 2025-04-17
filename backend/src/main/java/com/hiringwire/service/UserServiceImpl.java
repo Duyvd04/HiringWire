@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.hiringwire.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -11,10 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.hiringwire.dto.LoginDTO;
-import com.hiringwire.dto.NotificationDTO;
-import com.hiringwire.dto.ResponseDTO;
-import com.hiringwire.dto.UserDTO;
 import com.hiringwire.entity.OTP;
 import com.hiringwire.entity.User;
 import com.hiringwire.exception.HiringWireException;
@@ -24,6 +21,7 @@ import com.hiringwire.utility.Data;
 import com.hiringwire.utility.Utilities;
 
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -46,7 +44,7 @@ public class UserServiceImpl implements UserService {
 	private NotificationService notificationService;
 
 	@Autowired
-	private Utilities utilities; // Add this
+	private Utilities utilities;
 
 	@Override
 	public UserDTO registerUser(UserDTO userDTO) throws HiringWireException {
@@ -55,19 +53,39 @@ public class UserServiceImpl implements UserService {
 			throw new HiringWireException("USER_FOUND");
 		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 		userDTO.setProfileId(profileService.createProfile(userDTO));
+		userDTO.setAccountStatus(AccountStatus.ACTIVE); // Set initial status
+		userDTO.setLastLoginDate(LocalDateTime.now()); // Set initial login date
 		User user = IUserRepository.save(userDTO.toEntity());
 		user.setPassword(null);
 		return user.toDTO();
 	}
 
 	@Override
+	@Transactional
 	public UserDTO loginUser(LoginDTO loginDTO) throws HiringWireException {
 		User user = IUserRepository.findByEmail(loginDTO.getEmail())
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+
+		if (user.getAccountStatus() == AccountStatus.BLOCKED ||
+				user.getAccountStatus() == AccountStatus.DELETED) {
+			throw new HiringWireException("ACCOUNT_" + user.getAccountStatus());
+		}
+
 		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
 			throw new HiringWireException("INVALID_CREDENTIALS");
-		user.setPassword(null);
-		return user.toDTO();
+
+		user.setLastLoginDate(LocalDateTime.now());
+		if (user.getAccountStatus() == AccountStatus.INACTIVE) {
+			String oldStatus = user.getAccountStatus().toString();
+			user.setAccountStatus(AccountStatus.ACTIVE);
+			sendStatusChangeNotification(user, oldStatus, "ACTIVE",
+					"Your account has been reactivated after successful login.");
+		}
+
+		user = IUserRepository.save(user);
+		UserDTO userDTO = user.toDTO();
+		userDTO.setPassword(null);
+		return userDTO;
 	}
 
 	@Override
@@ -119,9 +137,86 @@ public class UserServiceImpl implements UserService {
 		return new ResponseDTO("Password changed successfully.");
 	}
 
+
+	@Override
+	public List<UserDTO> getAllUsers() throws HiringWireException {
+		List<User> users = IUserRepository.findAll();
+		if (users.isEmpty())
+			throw new HiringWireException("NO_USERS_FOUND");
+		return users.stream().map((x) -> x.toDTO()).toList();
+	}
+
+	@Override
+	public void changeAccountStatus(Long id, String accountStatus) throws HiringWireException {
+		User user = IUserRepository.findById(id)
+				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+
+		String oldStatus = user.getAccountStatus().toString();
+		String reason = "";
+
+		if (accountStatus.equalsIgnoreCase("ACTIVE")) {
+			user.setAccountStatus(AccountStatus.ACTIVE);
+			reason = "Your account is now active.";
+		} else if (accountStatus.equalsIgnoreCase("INACTIVE")) {
+			user.setAccountStatus(AccountStatus.INACTIVE);
+			reason = "Your account has been marked as inactive due to inactivity.";
+		} else if (accountStatus.equalsIgnoreCase("BLOCKED")) {
+			user.setAccountStatus(AccountStatus.BLOCKED);
+			reason = "Your account has been blocked. Please contact support.";
+		} else if (accountStatus.equalsIgnoreCase("DELETED")) {
+			user.setAccountStatus(AccountStatus.DELETED);
+			reason = "Your account has been deleted.";
+		} else {
+			throw new HiringWireException("INVALID_STATUS");
+		}
+
+		IUserRepository.save(user);
+		sendStatusChangeNotification(user, oldStatus, accountStatus.toUpperCase(), reason);
+	}
+
 	@Override
 	public UserDTO getUserByEmail(String email) throws HiringWireException {
 		return IUserRepository.findByEmail(email)
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND")).toDTO();
 	}
+	@Scheduled(cron = "0 0 0 * * ?") // Runs daily at midnight
+	public void checkInactiveUsers() throws HiringWireException {
+		LocalDateTime inactiveThreshold = LocalDateTime.now().minusDays(15);
+		List<User> users = IUserRepository.findByLastLoginDateBeforeAndAccountStatus(
+				inactiveThreshold, AccountStatus.ACTIVE);
+
+		for (User user : users) {
+			String oldStatus = user.getAccountStatus().toString();
+			user.setAccountStatus(AccountStatus.INACTIVE);
+			IUserRepository.save(user);
+
+			sendStatusChangeNotification(user, oldStatus, "INACTIVE",
+					"Your account has been marked as inactive due to 15 days of inactivity.");
+		}
+	}
+	private void sendStatusChangeNotification(User user, String oldStatus, String newStatus, String reason) throws HiringWireException {
+		// In-app notification
+		NotificationDTO notification = new NotificationDTO();
+		notification.setUserId(user.getId());
+		notification.setAction("Account Status Change");
+
+		String message = String.format("Your account status has been changed from %s to %s. %s",
+				oldStatus, newStatus, reason);
+		notification.setMessage(message);
+
+		notificationService.sendNotification(notification);
+
+		// Email notification
+		try {
+			MimeMessage email = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(email, true);
+			helper.setTo(user.getEmail());
+			helper.setSubject("Account Status Change Notification");
+			helper.setText(message, true); // HTML content
+			mailSender.send(email);
+		} catch (Exception e) {
+			throw new HiringWireException("Failed to send email notification: " + e.getMessage());
+		}
+	}
+
 }

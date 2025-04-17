@@ -9,7 +9,7 @@
 		<version>3.3.2</version>
 		<relativePath />
 	</parent>
-	<groupId>com.jobportal</groupId>
+	<groupId>com.hiringwire</groupId>
 	<artifactId>HiringWire</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>HiringWire</name>
@@ -61,10 +61,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-data-mongodb</artifactId>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -101,6 +97,17 @@
 			<artifactId>s3</artifactId>
 			<version>2.31.14</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.29</version> 
+		</dependency>
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itext7-core</artifactId>
+			<version>7.2.5</version>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 
