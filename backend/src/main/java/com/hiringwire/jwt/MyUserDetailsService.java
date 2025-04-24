@@ -8,6 +8,7 @@ import com.hiringwire.entity.User;
 import com.hiringwire.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,9 +30,16 @@ public class MyUserDetailsService implements UserDetailsService {
 		User user = userRepository.findByEmail(username)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-		if (user.getAccountStatus() == AccountStatus.BLOCKED
-				|| user.getAccountStatus() == AccountStatus.DELETED) {
-			throw new DisabledException("Account is " + user.getAccountStatus());
+		if (user.getAccountStatus() == AccountStatus.PENDING_APPROVAL) {
+			throw new DisabledException("Account is pending approval");
+		}
+
+		if (user.getAccountStatus() == AccountStatus.BLOCKED) {
+			throw new LockedException("Account is blocked");
+		}
+
+		if (user.getAccountStatus() == AccountStatus.REJECTED) {
+			throw new DisabledException("Account has been rejected");
 		}
 
 		CustomUserDetails userDetails = new CustomUserDetails(

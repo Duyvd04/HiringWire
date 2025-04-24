@@ -1,0 +1,250 @@
+// src/Pages/AdminDashboard.tsx
+import { useEffect, useState } from 'react';
+import { Badge, Select, Table, Tabs, Text, Button, Group } from '@mantine/core';
+import { IconBriefcase, IconUsers } from '@tabler/icons-react';
+import {
+    changeAccountStatus,
+    getAllJobs,
+    getAllUsers,
+    getPendingEmployers,
+    approveEmployer,
+    rejectEmployer
+} from '../Services/AdminService';
+import { notifications } from '@mantine/notifications';
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    accountType: string;
+    accountStatus: string;
+}
+
+interface Job {
+    id: number;
+    jobTitle: string;
+    company: string;
+    jobStatus: string;
+    postTime: string;
+}
+
+const AdminDashboard = () => {
+    const [users, setUsers] = useState<User[]>([]);
+    const [jobs, setJobs] = useState<Job[]>([]);
+    const [pendingEmployers, setPendingEmployers] = useState<User[]>([]);
+    const [activeTab, setActiveTab] = useState<string | null>('users');
+
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        try {
+            const [usersData, jobsData, pendingEmployersData] = await Promise.all([
+                getAllUsers(),
+                getAllJobs(),
+                getPendingEmployers()
+            ]);
+            setUsers(usersData);
+            setJobs(jobsData);
+            setPendingEmployers(pendingEmployersData);
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to load dashboard data',
+                color: 'red'
+            });
+        }
+    };
+
+    const handleStatusChange = async (userId: number, newStatus: string | null) => {
+        if (!newStatus) return;
+        try {
+            await changeAccountStatus(userId, newStatus);
+            loadData();
+            notifications.show({
+                title: 'Success',
+                message: 'Account status updated successfully',
+                color: 'green'
+            });
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to update account status',
+                color: 'red'
+            });
+        }
+    };
+
+    const handleApproveEmployer = async (userId: number) => {
+        try {
+            await approveEmployer(userId);
+            loadData();
+            notifications.show({
+                title: 'Success',
+                message: 'Employer approved successfully',
+                color: 'green'
+            });
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to approve employer',
+                color: 'red'
+            });
+        }
+    };
+
+    const handleRejectEmployer = async (userId: number) => {
+        try {
+            await rejectEmployer(userId);
+            loadData();
+            notifications.show({
+                title: 'Success',
+                message: 'Employer rejected successfully',
+                color: 'green'
+            });
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to reject employer',
+                color: 'red'
+            });
+        }
+    };
+
+    const handleTabChange = (value: string | null) => {
+        if (value) setActiveTab(value);
+    };
+
+    return (
+        <div className="min-h-[90vh] p-6">
+            <Text size="xl" fw={700} mb="lg">Admin Dashboard</Text>
+
+            <Tabs value={activeTab} onChange={handleTabChange}>
+                <Tabs.List>
+                    <Tabs.Tab value="users" leftSection={<IconUsers size={14}/>}>
+                        Users Management
+                    </Tabs.Tab>
+                    <Tabs.Tab value="jobs" leftSection={<IconBriefcase size={14}/>}>
+                        Jobs Management
+                    </Tabs.Tab>
+                    <Tabs.Tab value="pending" leftSection={<IconBriefcase size={14}/>}>
+                        Pending Employers
+                    </Tabs.Tab>
+                </Tabs.List>
+
+                <Tabs.Panel value="users" pt="xl">
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>ID</Table.Th>
+                                <Table.Th>Email</Table.Th>
+                                <Table.Th>Role</Table.Th>
+                                <Table.Th>Status</Table.Th>
+                                <Table.Th>Actions</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            {users.map((user) => (
+                                <Table.Tr key={user.id}>
+                                    <Table.Td>{user.id}</Table.Td>
+                                    <Table.Td>{user.name}</Table.Td>
+                                    <Table.Td>{user.email}</Table.Td>
+                                    <Table.Td>
+                                        <Badge color={user.accountType === 'ADMIN' ? 'red' : 'blue'}>
+                                            {user.accountType}
+                                        </Badge>
+                                    </Table.Td>
+                                    <Table.Td>{user.accountStatus}</Table.Td>
+                                    <Table.Td>
+                                        <Select
+                                            size="xs"
+                                            value={user.accountStatus}
+                                            onChange={(value) => handleStatusChange(user.id, value)}
+                                            data={['ACTIVE', 'INACTIVE', 'BLOCKED']}
+                                        />
+                                    </Table.Td>
+                                </Table.Tr>
+                            ))}
+                        </Table.Tbody>
+                    </Table>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="jobs" pt="xl">
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>ID</Table.Th>
+                                <Table.Th>Title</Table.Th>
+                                <Table.Th>Company</Table.Th>
+                                <Table.Th>Status</Table.Th>
+                                <Table.Th>Posted Date</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            {jobs.map((job) => (
+                                <Table.Tr key={job.id}>
+                                    <Table.Td>{job.id}</Table.Td>
+                                    <Table.Td>{job.jobTitle}</Table.Td>
+                                    <Table.Td>{job.company}</Table.Td>
+                                    <Table.Td>
+                                        <Badge color={job.jobStatus === 'ACTIVE' ? 'green' : 'gray'}>
+                                            {job.jobStatus}
+                                        </Badge>
+                                    </Table.Td>
+                                    <Table.Td>{new Date(job.postTime).toLocaleDateString()}</Table.Td>
+                                </Table.Tr>
+                            ))}
+                        </Table.Tbody>
+                    </Table>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="pending" pt="xl">
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>ID</Table.Th>
+                                <Table.Th>Name</Table.Th>
+                                <Table.Th>Email</Table.Th>
+                                <Table.Th>Status</Table.Th>
+                                <Table.Th>Actions</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            {pendingEmployers.map((employer) => (
+                                <Table.Tr key={employer.id}>
+                                    <Table.Td>{employer.id}</Table.Td>
+                                    <Table.Td>{employer.name}</Table.Td>
+                                    <Table.Td>{employer.email}</Table.Td>
+                                    <Table.Td>
+                                        <Badge color="yellow">PENDING</Badge>
+                                    </Table.Td>
+                                    <Table.Td>
+                                        <Group>
+                                            <Button
+                                                size="xs"
+                                                color="green"
+                                                onClick={() => handleApproveEmployer(employer.id)}
+                                            >
+                                                Approve
+                                            </Button>
+                                            <Button
+                                                size="xs"
+                                                color="red"
+                                                onClick={() => handleRejectEmployer(employer.id)}
+                                            >
+                                                Reject
+                                            </Button>
+                                        </Group>
+                                    </Table.Td>
+                                </Table.Tr>
+                            ))}
+                        </Table.Tbody>
+                    </Table>
+                </Tabs.Panel>
+            </Tabs>
+        </div>
+    );
+};
+
+export default AdminDashboard;

@@ -1,5 +1,5 @@
 package com.hiringwire.dto;
 
 public enum AccountStatus {
-    ACTIVE, INACTIVE, BLOCKED, DELETED
+    ACTIVE, INACTIVE, BLOCKED, PENDING_APPROVAL, REJECTED
 }

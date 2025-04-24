@@ -51,10 +51,18 @@ public class UserServiceImpl implements UserService {
 		Optional<User> optional = IUserRepository.findByEmail(userDTO.getEmail());
 		if (optional.isPresent())
 			throw new HiringWireException("USER_FOUND");
+
 		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 		userDTO.setProfileId(profileService.createProfile(userDTO));
-		userDTO.setAccountStatus(AccountStatus.ACTIVE); // Set initial status
-		userDTO.setLastLoginDate(LocalDateTime.now()); // Set initial login date
+
+		// Set initial status based on account type
+		if (userDTO.getAccountType() == AccountType.EMPLOYER) {
+			userDTO.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+		} else {
+			userDTO.setAccountStatus(AccountStatus.ACTIVE);
+		}
+
+		userDTO.setLastLoginDate(LocalDateTime.now());
 		User user = IUserRepository.save(userDTO.toEntity());
 		user.setPassword(null);
 		return user.toDTO();
@@ -66,13 +74,18 @@ public class UserServiceImpl implements UserService {
 		User user = IUserRepository.findByEmail(loginDTO.getEmail())
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 
-		if (user.getAccountStatus() == AccountStatus.BLOCKED ||
-				user.getAccountStatus() == AccountStatus.DELETED) {
-			throw new HiringWireException("ACCOUNT_" + user.getAccountStatus());
+		// Check account status first
+		if (user.getAccountStatus() == AccountStatus.BLOCKED) {
+			throw new HiringWireException("ACCOUNT_BLOCKED");
 		}
 
-		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
+		if (user.getAccountStatus() == AccountStatus.PENDING_APPROVAL) {
+			throw new HiringWireException("ACCOUNT_PENDING_APPROVAL");
+		}
+
+		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
 			throw new HiringWireException("INVALID_CREDENTIALS");
+		}
 
 		user.setLastLoginDate(LocalDateTime.now());
 		if (user.getAccountStatus() == AccountStatus.INACTIVE) {
@@ -95,8 +108,9 @@ public class UserServiceImpl implements UserService {
 		MimeMessage mm = mailSender.createMimeMessage();
 		MimeMessageHelper message = new MimeMessageHelper(mm, true);
 		message.setTo(email);
+		message.setFrom("vuducduy1112004@gmail.com", "HiringWire");
 		message.setSubject("Your OTP Code");
-		String generatedOtp = utilities.generateOTP(); // Updated to instance call
+		String generatedOtp = utilities.generateOTP();
 		OTP otp = new OTP(email, generatedOtp, LocalDateTime.now());
 		IOTPRepository.save(otp);
 		message.setText(Data.getMessageBody(generatedOtp, user.getName()), true);
@@ -163,9 +177,6 @@ public class UserServiceImpl implements UserService {
 		} else if (accountStatus.equalsIgnoreCase("BLOCKED")) {
 			user.setAccountStatus(AccountStatus.BLOCKED);
 			reason = "Your account has been blocked. Please contact support.";
-		} else if (accountStatus.equalsIgnoreCase("DELETED")) {
-			user.setAccountStatus(AccountStatus.DELETED);
-			reason = "Your account has been deleted.";
 		} else {
 			throw new HiringWireException("INVALID_STATUS");
 		}
@@ -211,8 +222,9 @@ public class UserServiceImpl implements UserService {
 			MimeMessage email = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(email, true);
 			helper.setTo(user.getEmail());
+			helper.setFrom("vuducduy1112004@gmail.com", "HiringWire");
 			helper.setSubject("Account Status Change Notification");
-			helper.setText(message, true); // HTML content
+			helper.setText(message, true);
 			mailSender.send(email);
 		} catch (Exception e) {
 			throw new HiringWireException("Failed to send email notification: " + e.getMessage());

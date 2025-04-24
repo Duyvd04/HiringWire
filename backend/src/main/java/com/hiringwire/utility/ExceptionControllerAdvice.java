@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,5 +53,14 @@ public class ExceptionControllerAdvice {
         errorInfo.setErrorCode(HttpStatus.BAD_REQUEST.value());
         errorInfo.setTimeStamp(LocalDateTime.now());
         return new ResponseEntity<>(errorInfo, HttpStatus.BAD_REQUEST);
+	}
+	@ExceptionHandler({DisabledException.class, LockedException.class})
+	public ResponseEntity<ErrorInfo> handleSecurityException(Exception ex) {
+		ErrorInfo error = new ErrorInfo(
+				ex.getMessage(),
+				HttpStatus.FORBIDDEN.value(),
+				LocalDateTime.now()
+		);
+		return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
 	}
 }
