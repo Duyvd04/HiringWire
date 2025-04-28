@@ -4,7 +4,7 @@ import { removeJwt } from "../Slices/JwtSlice";
 
 const axiosInstance = axios.create({
     // baseURL: 'http://localhost:8080'
-    baseURL: 'http://hiringwire-production.up.railway.app'
+    baseURL: 'https://hiringwire-production.up.railway.app'
 });
 
 axiosInstance.interceptors.request.use(
