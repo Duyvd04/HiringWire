@@ -32,7 +32,7 @@ const Header = () => {
 
     useEffect(() => {
         setupResponseInterceptor(navigate, dispatch);
-    }, [navigate]);
+    }, [navigate, dispatch]);
 
     const handleClick = (url: string) => {
         navigate(url);
@@ -47,7 +47,7 @@ const Header = () => {
             }
         }
         if (user?.profileId) {
-            // dispatch(showOverlay())
+            // dispatch(showOverlay());
             getProfile(user?.profileId)
                 .then((res) => {
                     dispatch(setProfile(res));
@@ -55,9 +55,9 @@ const Header = () => {
                 .catch((err) => console.log(err));
             // .finally(() => dispatch(hideOverlay()));
         }
-    }, [token, navigate]);
+    }, [token, user?.profileId, dispatch]);
 
-    return (location.pathname !== "/signup" && location.pathname !== "/login") ? (
+    return location.pathname !== "/signup" && location.pathname !== "/login" ? (
         <div
             data-aos="zoom-out"
             className="w-full bg-white px-6 text-deepSlate-900 h-20 flex justify-between items-center font-['poppins']"
@@ -69,23 +69,17 @@ const Header = () => {
                 {/*<IconAnchor className="h-8 w-8" stroke={2.5} />*/}
                 <div className="xs-mx:hidden text-3xl font-semibold">HiringWire</div>
             </div>
-            {NavLinks()}
+            <NavLinks /> {/* Render as a component, not a function call */}
             <div className="flex gap-3 items-center">
                 {user ? (
                     <ProfileMenu />
                 ) : (
-                    <Link
-                        to="/login"
-                        className="text-deepSlate-600 hover:text-oceanTeal-600"
-                    >
+                    <Link to="/login" className="text-deepSlate-600 hover:text-oceanTeal-600">
                         <Button color="oceanTeal.4" variant="subtle">
                             Login
                         </Button>
                     </Link>
                 )}
-                {/* <div className="bg-deepSlate-100 p-1.5 rounded-full">
-          <IconSettings stroke={1.5} className="text-deepSlate-900" />
-        </div> */}
                 {user ? <NotiMenu /> : <></>}
                 <Burger
                     className="bs:hidden"

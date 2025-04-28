@@ -65,32 +65,6 @@ public class AdminServiceImpl implements AdminService {
                 "Your employer account has been rejected. Please contact support for more information."));
     }
 
-//    @Override
-//    public void approveJob(Long id) throws HiringWireException {
-//        Job job = jobRepository.findById(id)
-//                .orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
-//
-//        if (job.getJobStatus() != JobStatus.PENDING) {
-//            throw new HiringWireException("JOB_NOT_PENDING");
-//        }
-//
-//        job.setJobStatus(JobStatus.ACTIVE);
-//        jobRepository.save(job);
-//
-//        // Send notification
-//        notificationService.sendNotification(createNotification(job.getEmployerId(),
-//                "Job Approved",
-//                "Your job has been approved and is now live."));
-//
-//    }
-//
-//    @Override
-//    public List<Job> getPendingJobs() {
-//        return jobRepository.findAll().stream()
-//                .filter(job -> job.getJobStatus() == JobStatus.PENDING)
-//                .collect(Collectors.toList());
-//    }
-
 
     private NotificationDTO createNotification(Long userId, String action, String message) {
         NotificationDTO notification = new NotificationDTO();

@@ -39,8 +39,9 @@ public class Job {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "job_skills_required", joinColumns = @JoinColumn(name = "job_id"))
     private List<String> skillsRequired;
-
-    private JobStatus jobStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_status")
+    private JobStatus jobStatus = JobStatus.PENDING;
     private Long postedBy;
 
     public JobDTO toDTO() {

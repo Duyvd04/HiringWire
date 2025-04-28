@@ -2,6 +2,7 @@ package com.hiringwire.repository;
 
 import java.util.List;
 
+import com.hiringwire.dto.JobStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,6 @@ public interface IJobRepository extends JpaRepository<Job, Long> {
 													@Param("status") ApplicationStatus applicationStatus);
 
 	List<Job> findByPostedBy(Long postedBy);
+	List<Job> findByJobStatus(JobStatus jobStatus);
+
 }

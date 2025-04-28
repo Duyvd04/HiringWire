@@ -14,6 +14,26 @@ import { Link } from 'react-router-dom';
 import { removeUser } from '../../Slices/UserSlice';
 import { removeJwt } from '../../Slices/JwtSlice';
 
+const menuItems = {
+    profile: {
+        roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
+        icon: IconUserCircle,
+        label: 'Profile',
+        path: '/profile'
+    },
+    messages: {
+        roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
+        icon: IconMessageCircle,
+        label: 'Messages',
+        path: '/messages'
+    },
+    resume: {
+        roles: ['APPLICANT'],
+        icon: IconFileText,
+        label: 'Resume',
+        path: '/resume'
+    }
+};
 const ProfileMenu = () => {
     const user = useSelector((state: any) => state.user);
     const profile = useSelector((state: any) => state.profile);
@@ -24,6 +44,26 @@ const ProfileMenu = () => {
     const handleLogout = () => {
         dispatch(removeUser());
         dispatch(removeJwt());
+    };
+
+    const renderMenuItem = (key: keyof typeof menuItems) => {
+        const item = menuItems[key];
+        if (!item.roles.includes(user.role)) return null;
+
+        return (
+            <Link to={item.path} key={key}>
+                <Menu.Item
+                    leftSection={
+                        <item.icon
+                            style={{ width: rem(14), height: rem(14) }}
+                            color="var(--mantine-color-deepSlate-9)"
+                        />
+                    }
+                >
+                    {item.label}
+                </Menu.Item>
+            </Link>
+        );
     };
 
     return (
@@ -39,38 +79,8 @@ const ProfileMenu = () => {
             </Menu.Target>
 
             <Menu.Dropdown className="bg-white">
-                <Link to="/profile">
-                    <Menu.Item
-                        leftSection={
-                            <IconUserCircle
-                                style={{ width: rem(14), height: rem(14) }}
-                                color="var(--mantine-color-deepSlate-9)"
-                            />
-                        }
-                    >
-                        Profile
-                    </Menu.Item>
-                </Link>
-                <Menu.Item
-                    leftSection={
-                        <IconMessageCircle
-                            style={{ width: rem(14), height: rem(14) }}
-                            color="var(--mantine-color-deepSlate-9)"
-                        />
-                    }
-                >
-                    Messages
-                </Menu.Item>
-                <Menu.Item
-                    leftSection={
-                        <IconFileText
-                            style={{ width: rem(14), height: rem(14) }}
-                            color="var(--mantine-color-deepSlate-9)"
-                        />
-                    }
-                >
-                    Resume
-                </Menu.Item>
+                {Object.keys(menuItems).map((key) => renderMenuItem(key as keyof typeof menuItems))}
+
                 <Menu.Item
                     leftSection={
                         <IconMoon

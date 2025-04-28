@@ -1,6 +1,7 @@
 package com.hiringwire.api;
 
 import com.hiringwire.dto.*;
+import com.hiringwire.entity.Job;
 import com.hiringwire.exception.HiringWireException;
 import com.hiringwire.service.AdminService;
 import com.hiringwire.service.JobService;
@@ -12,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -28,6 +31,7 @@ public class AdminAPI {
     @Autowired
     private AdminService adminService;
 
+
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() throws HiringWireException {
         List<UserDTO> users = userService.getAllUsers();
@@ -35,9 +39,13 @@ public class AdminAPI {
     }
 
     @GetMapping("/jobs")
-    public ResponseEntity<List<JobDTO>> getAllJobs() throws HiringWireException {
-        List<JobDTO> jobs = jobService.getAllJobs();
-        return ResponseEntity.ok(jobs);
+    public ResponseEntity<List<JobDTO>> getAllJobs() {
+        try {
+            List<JobDTO> jobs = jobService.getAllJobs();
+            return ResponseEntity.ok(jobs);
+        } catch (HiringWireException e) {
+            return ResponseEntity.ok(new ArrayList<>());
+        }
     }
 
     @GetMapping("/employers/pending")
@@ -68,5 +76,25 @@ public class AdminAPI {
         userService.changeAccountStatus(id, AccountStatus);
         return ResponseEntity.ok("Account status changed successfully");
     }
+    @GetMapping("/jobs/pending")
+    public ResponseEntity<List<JobDTO>> getPendingJobs() {
+        try {
+            List<JobDTO> pendingJobs = jobService.getPendingJobs();
+            return ResponseEntity.ok(pendingJobs);
+        } catch (HiringWireException e) {
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
 
+    @PostMapping("/jobs/{id}/approve")
+    public ResponseEntity<String> approveJob(@PathVariable Long id) throws HiringWireException {
+        jobService.approveJob(id);
+        return ResponseEntity.ok("Job approved successfully");
+    }
+
+    @PostMapping("/jobs/{id}/reject")
+    public ResponseEntity<String> rejectJob(@PathVariable Long id) throws HiringWireException {
+        jobService.rejectJob(id);
+        return ResponseEntity.ok("Job rejected successfully");
+    }
 }

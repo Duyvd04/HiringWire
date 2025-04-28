@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.hiringwire.entity.User;
 import com.hiringwire.repository.IUserRepository;
@@ -50,13 +51,15 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public JobDTO postJob(JobDTO jobDTO) throws HiringWireException {
-		if (jobDTO.getId() == null || jobDTO.getId() == 0) { // Check for null or 0 since ID is auto-generated
+		if (jobDTO.getId() == null || jobDTO.getId() == 0) {
 			jobDTO.setPostTime(LocalDateTime.now());
+			jobDTO.setJobStatus(JobStatus.PENDING);
+
 			NotificationDTO notiDto = new NotificationDTO();
 			notiDto.setAction("Job Posted");
 			notiDto.setMessage("Job Posted Successfully for " + jobDTO.getJobTitle() + " at " + jobDTO.getCompany());
 			notiDto.setUserId(jobDTO.getPostedBy());
-			// ID will be set after save, so set route later
+
 			Job savedJob = IJobRepository.save(jobDTO.toEntity());
 			notiDto.setRoute("/posted-jobs/" + savedJob.getId());
 			notificationService.sendNotification(notiDto);
@@ -72,7 +75,11 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	public List<JobDTO> getAllJobs() throws HiringWireException {
-		return IJobRepository.findAll().stream().map((x) -> x.toDTO()).toList();
+		List<Job> jobs = IJobRepository.findAll();
+		if (jobs.isEmpty()) {
+			throw new HiringWireException("NO_JOBS_FOUND");
+		}
+		return jobs.stream().map(Job::toDTO).collect(Collectors.toList());
 	}
 
 	@Override
@@ -250,5 +257,45 @@ public class JobServiceImpl implements JobService {
 	public Job getJobWithApplicant(Long jobId, Long applicantId) throws HiringWireException {
 		return IJobRepository.findById(jobId)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
+	}
+	@Override
+	public List<JobDTO> getPendingJobs() throws HiringWireException {
+		List<Job> jobs = IJobRepository.findByJobStatus(JobStatus.PENDING);
+		return jobs.stream()
+				.map(Job::toDTO)
+				.collect(Collectors.toList());
+	}
+	@Override
+	@Transactional
+	public void approveJob(Long id) throws HiringWireException {
+		Job job = IJobRepository.findById(id)
+				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
+
+		job.setJobStatus(JobStatus.ACTIVE);
+		IJobRepository.save(job);
+
+		NotificationDTO notification = new NotificationDTO();
+		notification.setUserId(job.getPostedBy());
+		notification.setAction("Job Approved");
+		notification.setMessage("Your job posting for " + job.getJobTitle() + " has been approved");
+		notification.setRoute("/posted-jobs/" + job.getId());
+		notificationService.sendNotification(notification);
+	}
+
+	@Override
+	@Transactional
+	public void rejectJob(Long id) throws HiringWireException {
+		Job job = IJobRepository.findById(id)
+				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
+
+		job.setJobStatus(JobStatus.REJECTED);
+		IJobRepository.save(job);
+
+		NotificationDTO notification = new NotificationDTO();
+		notification.setUserId(job.getPostedBy());
+		notification.setAction("Job Rejected");
+		notification.setMessage("Your job posting for " + job.getJobTitle() + " has been rejected");
+		notification.setRoute("/posted-jobs/" + job.getId());
+		notificationService.sendNotification(notification);
 	}
 }

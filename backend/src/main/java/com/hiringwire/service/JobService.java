@@ -28,4 +28,7 @@ public interface JobService {
 
 	void deleteJob(Long id) throws HiringWireException;
     Job getJobWithApplicant(Long jobId, Long applicantId) throws HiringWireException;
+    List<JobDTO> getPendingJobs() throws HiringWireException;
+    void approveJob(Long id) throws HiringWireException;
+    void rejectJob(Long id) throws HiringWireException;
 }

@@ -7,8 +7,11 @@ import {
     getAllJobs,
     getAllUsers,
     getPendingEmployers,
+    getPendingJobs,
     approveEmployer,
-    rejectEmployer
+    rejectEmployer,
+    approveJob,
+    rejectJob
 } from '../Services/AdminService';
 import { notifications } from '@mantine/notifications';
 
@@ -31,6 +34,7 @@ interface Job {
 const AdminDashboard = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [jobs, setJobs] = useState<Job[]>([]);
+    const [pendingJobs, setPendingJobs] = useState<Job[]>([]);
     const [pendingEmployers, setPendingEmployers] = useState<User[]>([]);
     const [activeTab, setActiveTab] = useState<string | null>('users');
 
@@ -40,20 +44,30 @@ const AdminDashboard = () => {
 
     const loadData = async () => {
         try {
-            const [usersData, jobsData, pendingEmployersData] = await Promise.all([
+            const [usersData, jobsData, pendingEmployersData, pendingJobsData] = await Promise.all([
                 getAllUsers(),
                 getAllJobs(),
-                getPendingEmployers()
+                getPendingEmployers(),
+                getPendingJobs()
             ]);
-            setUsers(usersData);
-            setJobs(jobsData);
-            setPendingEmployers(pendingEmployersData);
-        } catch (error) {
+
+            // Ensure all data is properly initialized as arrays
+            setUsers(Array.isArray(usersData) ? usersData : []);
+            setJobs(Array.isArray(jobsData) ? jobsData : []);
+            setPendingEmployers(Array.isArray(pendingEmployersData) ? pendingEmployersData : []);
+            setPendingJobs(Array.isArray(pendingJobsData) ? pendingJobsData : []);
+        } catch (error: any) {
+            console.error('Error loading data:', error);
             notifications.show({
                 title: 'Error',
-                message: 'Failed to load dashboard data',
+                message: error.response?.data?.message || 'Failed to load data',
                 color: 'red'
             });
+            // Set empty arrays on error
+            setUsers([]);
+            setJobs([]);
+            setPendingEmployers([]);
+            setPendingJobs([]);
         }
     };
 
@@ -71,6 +85,42 @@ const AdminDashboard = () => {
             notifications.show({
                 title: 'Error',
                 message: 'Failed to update account status',
+                color: 'red'
+            });
+        }
+    };
+
+    const handleApproveJob = async (jobId: number) => {
+        try {
+            await approveJob(jobId);
+            loadData();
+            notifications.show({
+                title: 'Success',
+                message: 'Job approved successfully',
+                color: 'green'
+            });
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to approve job',
+                color: 'red'
+            });
+        }
+    };
+
+    const handleRejectJob = async (jobId: number) => {
+        try {
+            await rejectJob(jobId);
+            loadData();
+            notifications.show({
+                title: 'Success',
+                message: 'Job rejected successfully',
+                color: 'green'
+            });
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'Failed to reject job',
                 color: 'red'
             });
         }
@@ -128,7 +178,10 @@ const AdminDashboard = () => {
                     <Tabs.Tab value="jobs" leftSection={<IconBriefcase size={14}/>}>
                         Jobs Management
                     </Tabs.Tab>
-                    <Tabs.Tab value="pending" leftSection={<IconBriefcase size={14}/>}>
+                    <Tabs.Tab value="pending-jobs" leftSection={<IconBriefcase size={14}/>}>
+                        Pending Jobs
+                    </Tabs.Tab>
+                    <Tabs.Tab value="pending-employers" leftSection={<IconUsers size={14}/>}>
                         Pending Employers
                     </Tabs.Tab>
                 </Tabs.List>
@@ -155,7 +208,11 @@ const AdminDashboard = () => {
                                             {user.accountType}
                                         </Badge>
                                     </Table.Td>
-                                    <Table.Td>{user.accountStatus}</Table.Td>
+                                    <Table.Td>
+                                        <Badge color={user.accountStatus === 'ACTIVE' ? 'green' : 'yellow'}>
+                                            {user.accountStatus}
+                                        </Badge>
+                                    </Table.Td>
                                     <Table.Td>
                                         <Select
                                             size="xs"
@@ -199,7 +256,59 @@ const AdminDashboard = () => {
                     </Table>
                 </Tabs.Panel>
 
-                <Tabs.Panel value="pending" pt="xl">
+                <Tabs.Panel value="pending-jobs" pt="xl">
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>ID</Table.Th>
+                                <Table.Th>Title</Table.Th>
+                                <Table.Th>Company</Table.Th>
+                                <Table.Th>Posted Date</Table.Th>
+                                <Table.Th>Actions</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            {!Array.isArray(pendingJobs) || pendingJobs.length === 0 ? (
+                                <Table.Tr>
+                                    <Table.Td colSpan={5}>
+                                        <Text color="dimmed" py="md">
+                                            No pending jobs found
+                                        </Text>
+                                    </Table.Td>
+                                </Table.Tr>
+                            ) : (
+                                pendingJobs.map((job) => (
+                                    <Table.Tr key={job.id}>
+                                        <Table.Td>{job.id}</Table.Td>
+                                        <Table.Td>{job.jobTitle}</Table.Td>
+                                        <Table.Td>{job.company}</Table.Td>
+                                        <Table.Td>{new Date(job.postTime).toLocaleDateString()}</Table.Td>
+                                        <Table.Td>
+                                            <Group>
+                                                <Button
+                                                    size="xs"
+                                                    color="green"
+                                                    onClick={() => handleApproveJob(job.id)}
+                                                >
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    size="xs"
+                                                    color="red"
+                                                    onClick={() => handleRejectJob(job.id)}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </Group>
+                                        </Table.Td>
+                                    </Table.Tr>
+                                ))
+                            )}
+                        </Table.Tbody>
+                    </Table>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="pending-employers" pt="xl">
                     <Table>
                         <Table.Thead>
                             <Table.Tr>
