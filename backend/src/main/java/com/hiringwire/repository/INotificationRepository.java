@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.hiringwire.dto.NotificationStatus;
 import com.hiringwire.entity.Notification;
+import com.hiringwire.entity.User;
 
 public interface INotificationRepository extends JpaRepository<Notification, Long> {
-	List<Notification> findByUserIdAndStatus(Long userId, NotificationStatus status);
+	List<Notification> findByUserAndStatus(User user, NotificationStatus status);
 }

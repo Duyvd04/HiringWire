@@ -1,7 +1,7 @@
 package com.hiringwire.dto;
 
 import com.hiringwire.entity.User;
-
+import com.hiringwire.entity.Profile;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -32,8 +32,8 @@ public class UserDTO {
 	private Long profileId;
 	private AccountStatus accountStatus;
 	private LocalDateTime lastLoginDate;
-	public User toEntity() {
-		return new User(this.id, this.name, this.email, this.password, this.accountType, this.profileId, this.accountStatus, this.lastLoginDate);
-	}
 
+	public User toEntity(Profile profile) {
+		return new User(this.id, this.name, this.email, this.password, this.accountType, profile, this.accountStatus, this.lastLoginDate);
+	}
 }

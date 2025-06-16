@@ -32,7 +32,7 @@ public class Job {
     private String experience;
     private String jobType;
     private String location;
-    private Long packageOffered;
+    private Long salary;
     private LocalDateTime postTime;
     private String description;
 
@@ -54,7 +54,7 @@ public class Job {
                 this.experience,
                 this.jobType,
                 this.location,
-                this.packageOffered,
+                this.salary,
                 this.postTime,
                 this.description,
                 this.skillsRequired,

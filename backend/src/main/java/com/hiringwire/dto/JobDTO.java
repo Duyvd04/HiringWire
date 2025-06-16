@@ -21,7 +21,7 @@ public class JobDTO {
 	private String experience;
 	private String jobType;
 	private String location;
-	private Long packageOffered;
+	private Long salary;
 	private LocalDateTime postTime;
 	private String description;
 	private List<String> skillsRequired;
@@ -30,7 +30,7 @@ public class JobDTO {
 
 	public Job toEntity() {
 		return new Job(this.id, this.jobTitle, this.company, this.applicants!=null?this.applicants.stream().map((x)->x.toEntity()).toList():null,this.about, this.experience, this.jobType,
-				this.location, this.packageOffered, this.postTime, this.description, this.skillsRequired,
+				this.location, this.salary, this.postTime, this.description, this.skillsRequired,
 				this.jobStatus, this.postedBy);
 	}
 }

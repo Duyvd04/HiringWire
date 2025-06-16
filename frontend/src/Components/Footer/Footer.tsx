@@ -9,6 +9,8 @@ import {
 import { footerLinks } from "../../Data/Data";
 import { useLocation } from "react-router-dom";
 import { Divider } from "@mantine/core";
+import { Link } from "react-router-dom";
+
 
 const Footer = () => {
     const location = useLocation();
@@ -43,12 +45,13 @@ const Footer = () => {
                     <div data-aos-offset="0" data-aos="fade-up" key={index}>
                         <div className="text-lg font-semibold mb-4 text-oceanTeal-500">{item.title}</div>
                         {item.links.map((link, index) => (
-                            <div
+                            <Link
+                                to={link.path}
                                 key={index}
-                                className="text-deepSlate-600 text-sm hover:text-oceanTeal-600 cursor-pointer mb-1 hover:translate-x-2 transition duration-300 ease-in-out"
+                                className="block text-deepSlate-600 text-sm hover:text-oceanTeal-600 cursor-pointer mb-1 hover:translate-x-2 transition duration-300 ease-in-out"
                             >
-                                {link}
-                            </div>
+                                {link.text}
+                            </Link>
                         ))}
                     </div>
                 ))}

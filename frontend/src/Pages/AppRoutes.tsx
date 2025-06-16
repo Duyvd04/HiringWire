@@ -20,6 +20,7 @@ import Unauthorized from './UnauthroizedPage';
 import NotFoundPage from './NotFoundPage';
 import { LoadingOverlay } from '@mantine/core';
 import AdminDashboard from './AdminDashboard';
+import CvEditor from "../Components/CvEditor";
 
 const AppRoutes = () => {
   const overlay = useSelector((state: any) => state.overlay);
@@ -60,7 +61,14 @@ const AppRoutes = () => {
         <Route path='/login' element={<PublicRoute><SignUpPage /></PublicRoute>} />
         <Route path='/profile' element={<ProtectedRoute allowedRoles={['APPLICANT', 'ADMIN', 'EMPLOYER']}><ProfilePage /></ProtectedRoute>} />
         <Route path='*' element={<NotFoundPage />} />
-      </Routes>
+        <Route
+            path="/cv-editor"
+            element={
+              <ProtectedRoute allowedRoles={['APPLICANT', 'ADMIN']}>
+                <CvEditor />
+              </ProtectedRoute>
+            }
+        />      </Routes>
       <Footer />
     </div>
   </BrowserRouter>

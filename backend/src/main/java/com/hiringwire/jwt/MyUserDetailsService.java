@@ -41,13 +41,14 @@ public class MyUserDetailsService implements UserDetailsService {
 		if (user.getAccountStatus() == AccountStatus.REJECTED) {
 			throw new DisabledException("Account has been rejected");
 		}
+		Long profileId = user.getProfile() != null ? user.getProfile().getId() : null;
 
 		CustomUserDetails userDetails = new CustomUserDetails(
 				user.getId(),
 				user.getEmail(),
 				user.getName(),
 				user.getPassword(),
-				user.getProfileId(),
+				profileId,
 				user.getAccountType(),
 				List.of(new SimpleGrantedAuthority("ROLE_" + user.getAccountType().toString()))
 		);

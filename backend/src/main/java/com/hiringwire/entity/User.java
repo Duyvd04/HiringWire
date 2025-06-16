@@ -1,11 +1,9 @@
 package com.hiringwire.entity;
 
 import com.hiringwire.dto.AccountStatus;
-import jakarta.persistence.*;
-
 import com.hiringwire.dto.AccountType;
 import com.hiringwire.dto.UserDTO;
-
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,14 +29,16 @@ public class User {
 
 	private AccountType accountType;
 
-	private Long profileId;
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "profile_id", referencedColumnName = "id")
+	private Profile profile;
 
 	private AccountStatus accountStatus;
 
 	private LocalDateTime lastLoginDate;
 
-
 	public UserDTO toDTO() {
-		return new UserDTO(this.id, this.name, this.email, this.password, this.accountType, this.profileId, this.accountStatus, this.lastLoginDate);
+		Long profileId = (profile != null) ? profile.getId() : null;
+		return new UserDTO(this.id, this.name, this.email, null, this.accountType, profileId, this.accountStatus, this.lastLoginDate);
 	}
 }

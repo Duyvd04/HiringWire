@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.hiringwire.dto.*;
+import com.hiringwire.entity.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -53,7 +54,12 @@ public class UserServiceImpl implements UserService {
 			throw new HiringWireException("USER_FOUND");
 
 		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-		userDTO.setProfileId(profileService.createProfile(userDTO));
+
+		// Create Profile entity
+		Profile profile = new Profile();
+		profile.setName(userDTO.getName());
+		profile.setEmail(userDTO.getEmail());
+		profile.setAccountType(userDTO.getAccountType().toString());
 
 		// Set initial status based on account type
 		if (userDTO.getAccountType() == AccountType.EMPLOYER) {
@@ -63,10 +69,16 @@ public class UserServiceImpl implements UserService {
 		}
 
 		userDTO.setLastLoginDate(LocalDateTime.now());
-		User user = IUserRepository.save(userDTO.toEntity());
+
+		// Create User with Profile entity
+		User user = userDTO.toEntity(profile);
+
+		// Save User (and Profile through cascade)
+		user = IUserRepository.save(user);
 		user.setPassword(null);
 		return user.toDTO();
 	}
+
 
 	@Override
 	@Transactional

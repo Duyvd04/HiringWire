@@ -12,6 +12,11 @@ const NavLinks = () => {
             roles: ["APPLICANT"],
         },
         {
+            name: "Find Talents",
+            url: "find-talent",
+            roles: ["ADMIN", "EMPLOYER"],
+        },
+        {
             name: "Post Job",
             url: "post-job/0",
             roles: ["EMPLOYER"],

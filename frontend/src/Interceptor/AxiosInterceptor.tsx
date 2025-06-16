@@ -3,8 +3,9 @@ import { removeUser } from "../Slices/UserSlice";
 import { removeJwt } from "../Slices/JwtSlice";
 
 const axiosInstance = axios.create({
-    // baseURL: 'http://localhost:8080'
-    baseURL: 'https://hiringwire-production.up.railway.app'
+    baseURL: 'http://localhost:8080'
+    // baseURL: 'https://1773-2402-800-7ca0-4871-95b9-f07b-7087-7f3.ngrok-free.app'
+    // baseURL: 'https://hiringwire-production.up.railway.app'
 });
 
 axiosInstance.interceptors.request.use(

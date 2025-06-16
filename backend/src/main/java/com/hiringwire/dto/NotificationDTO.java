@@ -3,7 +3,7 @@ package com.hiringwire.dto;
 import java.time.LocalDateTime;
 
 import com.hiringwire.entity.Notification;
-
+import com.hiringwire.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,8 +19,8 @@ public class NotificationDTO {
 	private String route;
 	private NotificationStatus status;
 	private LocalDateTime timestamp;
-	
-	public Notification toEntity() {
-		return new Notification (this.id, this.userId, this.message, this.action, this.route, this.status, this.timestamp);
+
+	public Notification toEntity(User user) {
+		return new Notification(this.id, user, this.message, this.action, this.route, this.status, this.timestamp);
 	}
 }

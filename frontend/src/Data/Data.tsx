@@ -92,9 +92,30 @@ const testimonials = [
     }
 ]
 const footerLinks = [
-    { title: "Product", links: ["Find Job", "Find Company", "Find Employee"] },
-    { title: "Company", links: ["About Us", "Contact Us", "Privacy Policy", "Terms & Conditions"] },
-    { title: "Support", links: ["Help & Support", "Feedback", "FAQs"] }
-
+    {
+        title: "Product",
+        links: [
+            { text: "Find Job", path: "/find-jobs" },
+            { text: "Find Company", path: "/companies" },
+            { text: "Find Employee", path: "/employees" }
+        ]
+    },
+    {
+        title: "Company",
+        links: [
+            { text: "About Us", path: "/about" },
+            { text: "Contact Us", path: "/contact" },
+            { text: "Privacy Policy", path: "/privacy" },
+            { text: "Terms & Conditions", path: "/terms" }
+        ]
+    },
+    {
+        title: "Support",
+        links: [
+            { text: "Help & Support", path: "/help" },
+            { text: "Feedback", path: "/feedback" },
+            { text: "FAQs", path: "/faqs" }
+        ]
+    }
 ]
 export { companies, jobCategory, work, testimonials, footerLinks };

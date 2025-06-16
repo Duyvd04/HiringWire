@@ -16,22 +16,22 @@ import { removeJwt } from '../../Slices/JwtSlice';
 
 const menuItems = {
     profile: {
-        roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
+        // roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
         icon: IconUserCircle,
         label: 'Profile',
         path: '/profile'
     },
     messages: {
-        roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
+        // roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
         icon: IconMessageCircle,
         label: 'Messages',
         path: '/messages'
     },
     resume: {
-        roles: ['APPLICANT'],
+        // roles: ['APPLICANT'],
         icon: IconFileText,
         label: 'Resume',
-        path: '/resume'
+        path: '/cv-editor'
     }
 };
 const ProfileMenu = () => {
@@ -48,7 +48,7 @@ const ProfileMenu = () => {
 
     const renderMenuItem = (key: keyof typeof menuItems) => {
         const item = menuItems[key];
-        if (!item.roles.includes(user.role)) return null;
+        // if (!item.roles.includes(user.role)) return null;
 
         return (
             <Link to={item.path} key={key}>

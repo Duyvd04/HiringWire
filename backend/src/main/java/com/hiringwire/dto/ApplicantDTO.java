@@ -1,10 +1,11 @@
 package com.hiringwire.dto;
 
-
 import java.time.LocalDateTime;
 import java.util.Base64;
 
 import com.hiringwire.entity.Applicant;
+import com.hiringwire.entity.User;
+import com.hiringwire.dto.ApplicationStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,9 +31,7 @@ public class ApplicantDTO {
 	public Applicant toEntity() {
 		Applicant applicant = new Applicant();
 		applicant.setId(this.getId());
-		applicant.setApplicantId(this.getApplicantId());
-		applicant.setName(this.getName());
-		applicant.setEmail(this.getEmail());
+		// User entity will be set by the service layer, not here
 		applicant.setPhone(this.getPhone());
 		applicant.setWebsite(this.getWebsite());
 		applicant.setResume(this.getResume() != null ? Base64.getDecoder().decode(this.getResume()) : null);
@@ -43,5 +42,4 @@ public class ApplicantDTO {
 		applicant.setInterviewTime(this.getInterviewTime());
 		return applicant;
 	}
-
 }

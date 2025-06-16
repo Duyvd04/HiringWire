@@ -11,11 +11,10 @@ import com.hiringwire.dto.ApplicationStatus;
 import com.hiringwire.entity.Job;
 
 public interface IJobRepository extends JpaRepository<Job, Long> {
-	@Query("SELECT j FROM Job j JOIN j.applicants a WHERE a.applicantId = :applicantId AND a.applicationStatus = :status")
+	@Query("SELECT j FROM Job j JOIN j.applicants a WHERE a.user.id = :applicantId AND a.applicationStatus = :status")
 	List<Job> findByApplicantIdAndApplicationStatus(@Param("applicantId") Long applicantId,
 													@Param("status") ApplicationStatus applicationStatus);
 
 	List<Job> findByPostedBy(Long postedBy);
 	List<Job> findByJobStatus(JobStatus jobStatus);
-
 }

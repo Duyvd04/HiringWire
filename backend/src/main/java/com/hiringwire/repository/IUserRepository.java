@@ -12,5 +12,6 @@ import com.hiringwire.entity.User;
 public interface IUserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
 	List<User> findByLastLoginDateBeforeAndAccountStatus(LocalDateTime date, AccountStatus status);
+	Optional<User> findByProfileId(Long profileId);
 
 }

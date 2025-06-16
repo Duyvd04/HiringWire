@@ -45,13 +45,11 @@ public class JobAPI {
 			try {
 				return jobService.postJob(x);
 			} catch (HiringWireException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return x;
 		}).toList() , HttpStatus.CREATED);
 	}
-	
 	@GetMapping("/getAll")
 	public ResponseEntity<List<JobDTO>>getAllJobs() throws HiringWireException {
 		return new ResponseEntity<>(jobService.getAllJobs(), HttpStatus.OK);

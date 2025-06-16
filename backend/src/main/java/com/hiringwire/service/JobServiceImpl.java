@@ -10,8 +10,12 @@ import java.util.stream.Collectors;
 
 import com.hiringwire.entity.User;
 import com.hiringwire.repository.IUserRepository;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -50,6 +54,7 @@ public class JobServiceImpl implements JobService {
 	private PdfGeneratorService pdfGeneratorService;
 
 	@Override
+	@CachePut(value = "jobs", key = "#result.id", condition = "#result != null")
 	public JobDTO postJob(JobDTO jobDTO) throws HiringWireException {
 		if (jobDTO.getId() == null || jobDTO.getId() == 0) {
 			jobDTO.setPostTime(LocalDateTime.now());
@@ -72,8 +77,8 @@ public class JobServiceImpl implements JobService {
 			return IJobRepository.save(jobDTO.toEntity()).toDTO();
 		}
 	}
-
 	@Override
+	@Cacheable(value = "jobsList", unless = "#result.isEmpty()")
 	public List<JobDTO> getAllJobs() throws HiringWireException {
 		List<Job> jobs = IJobRepository.findAll();
 		if (jobs.isEmpty()) {
@@ -83,12 +88,14 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
+	@Cacheable(value = "jobs", key = "#id")
 	public JobDTO getJob(Long id) throws HiringWireException {
 		return IJobRepository.findById(id).orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND")).toDTO();
 	}
 
 	@Override
 	@Transactional
+	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, allEntries = true)
 	public void applyJob(Long id, ApplicantDTO applicantDTO) throws HiringWireException {
 		Job job = IJobRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
@@ -102,7 +109,7 @@ public class JobServiceImpl implements JobService {
 		}
 
 		// Check if user has already applied
-		if (applicants.stream().anyMatch(x -> x.getApplicantId().equals(applicantDTO.getApplicantId()))) {
+		if (applicants.stream().anyMatch(x -> x.getUser().getId().equals(applicantDTO.getApplicantId()))) {
 			throw new HiringWireException("JOB_APPLIED_ALREADY");
 		}
 
@@ -120,9 +127,7 @@ public class JobServiceImpl implements JobService {
 
 		// Create new Applicant
 		Applicant applicant = new Applicant();
-		applicant.setApplicantId(applicantDTO.getApplicantId());
-		applicant.setName(user.getName());
-		applicant.setEmail(user.getEmail());
+		applicant.setUser(user); // Set User relationship
 		applicant.setPhone(applicantDTO.getPhone());
 		applicant.setWebsite(applicantDTO.getWebsite());
 		applicant.setResume(applicantDTO.getResume() != null ?
@@ -132,6 +137,7 @@ public class JobServiceImpl implements JobService {
 		applicant.setCoverLetter(applicantDTO.getCoverLetter());
 		applicant.setApplicationStatus(ApplicationStatus.APPLIED);
 		applicant.setTimestamp(LocalDateTime.now());
+		applicant.setJob(job);
 
 		// Add to applicants list and save
 		applicants.add(applicant);
@@ -141,12 +147,14 @@ public class JobServiceImpl implements JobService {
 		sendApplicationEmail(user.getEmail(), job);
 	}
 	@Override
+	@Cacheable(value = "history", key = "#id + '-' + #applicationStatus")
 	public List<JobDTO> getHistory(Long id, ApplicationStatus applicationStatus) {
 		return IJobRepository.findByApplicantIdAndApplicationStatus(id, applicationStatus)
 				.stream().map((x) -> x.toDTO()).toList();
 	}
 
 	@Override
+	@Cacheable(value = "postedJobs", key = "#id")
 	public List<JobDTO> getJobsPostedBy(Long id) throws HiringWireException {
 		return IJobRepository.findByPostedBy(id).stream().map((x) -> x.toDTO()).toList();
 	}
@@ -160,7 +168,7 @@ public class JobServiceImpl implements JobService {
 
 		boolean found = false;
 		for (Applicant applicant : job.getApplicants()) {
-			if (applicant.getApplicantId().equals(application.getApplicantId())) {
+			if (applicant.getUser().getId().equals(application.getApplicantId())) {
 				found = true;
 				applicant.setApplicationStatus(application.getApplicationStatus());
 
@@ -170,8 +178,7 @@ public class JobServiceImpl implements JobService {
 				}
 
 				try {
-					User applicantUser = userRepository.findById(applicant.getApplicantId())
-							.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+					User applicantUser = applicant.getUser(); // Use the User relationship
 					sendStatusUpdateEmail(applicantUser.getEmail(), job, application.getApplicationStatus());
 				} catch (Exception e) {
 					throw new HiringWireException("Failed to send notification: " + e.getMessage());
@@ -187,7 +194,12 @@ public class JobServiceImpl implements JobService {
 		IJobRepository.save(job);
 	}
 
+	// ... (other methods remain unchanged)
+
+
+
 	@Override
+	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
 	public void deleteJob(Long id) throws HiringWireException {
 		IJobRepository.deleteById(id);
 	}
@@ -207,6 +219,7 @@ public class JobServiceImpl implements JobService {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
+			helper.setFrom(new InternetAddress("vuducduy1112004@gmail.com", "HiringWire"));
 			helper.setTo(email);
 			helper.setSubject("Job Application Confirmation");
 			String htmlContent = String.format("""
@@ -230,6 +243,7 @@ public class JobServiceImpl implements JobService {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
+			helper.setFrom(new InternetAddress("vuducduy1112004@gmail.com", "HiringWire"));
 			helper.setTo(email);
 			helper.setSubject("Application Status Update");
 			String htmlContent = String.format("""
@@ -259,6 +273,7 @@ public class JobServiceImpl implements JobService {
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
 	}
 	@Override
+	@Cacheable(value = "pendingJobs")
 	public List<JobDTO> getPendingJobs() throws HiringWireException {
 		List<Job> jobs = IJobRepository.findByJobStatus(JobStatus.PENDING);
 		return jobs.stream()
@@ -267,6 +282,7 @@ public class JobServiceImpl implements JobService {
 	}
 	@Override
 	@Transactional
+	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
 	public void approveJob(Long id) throws HiringWireException {
 		Job job = IJobRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
@@ -284,6 +300,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
 	public void rejectJob(Long id) throws HiringWireException {
 		Job job = IJobRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));

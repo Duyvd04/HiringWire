@@ -168,7 +168,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="min-h-[90vh] p-6">
-            <Text size="xl" fw={700} mb="lg">Admin Dashboard</Text>
+            {/*<Text size="xl" fw={700} mb="lg">Admin Dashboard</Text>*/}
 
             <Tabs value={activeTab} onChange={handleTabChange}>
                 <Tabs.List>
@@ -191,6 +191,7 @@ const AdminDashboard = () => {
                         <Table.Thead>
                             <Table.Tr>
                                 <Table.Th>ID</Table.Th>
+                                <Table.Th>Name</Table.Th>
                                 <Table.Th>Email</Table.Th>
                                 <Table.Th>Role</Table.Th>
                                 <Table.Th>Status</Table.Th>

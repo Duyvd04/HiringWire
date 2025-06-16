@@ -3,24 +3,27 @@ package com.hiringwire.entity;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-
-import com.hiringwire.dto.NotificationDTO;
-import com.hiringwire.dto.NotificationStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.hiringwire.dto.NotificationDTO;
+import com.hiringwire.dto.NotificationStatus;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "notifications") // Changed to plural for consistency
+@Table(name = "notifications")
 public class Notification {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private Long userId;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
+
 	private String message;
 	private String action;
 	private String route;
@@ -30,7 +33,7 @@ public class Notification {
 	public NotificationDTO toDTO() {
 		return new NotificationDTO(
 				this.id,
-				this.userId,
+				this.user != null ? this.user.getId() : null,
 				this.message,
 				this.action,
 				this.route,
