@@ -35,4 +35,10 @@ const changeAppStatus=async (interview:any)=>{
     .then((result:any) => result.data)
     .catch((error:any) =>{throw error;});
 }
-export {postJob, getAllJobs, getJob, applyJob, getHistory, getJobsPostedBy, changeAppStatus};
+const getApplications = async (userId: string, role: string) => {
+    return axiosInstance.get(`/jobs/applications/${userId}/${role}`)
+        .then((result: any) => result.data)
+        .catch((error: any) => { throw error; });
+};
+
+export {postJob, getAllJobs, getJob, applyJob, getHistory, getJobsPostedBy, changeAppStatus,getApplications};

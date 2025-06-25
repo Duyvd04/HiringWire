@@ -1,10 +1,14 @@
 package com.hiringwire.service;
 
 import com.hiringwire.dto.*;
-import com.hiringwire.entity.User;
+import com.hiringwire.model.enums.AccountStatus;
+import com.hiringwire.model.enums.AccountType;
+import com.hiringwire.model.User;
 import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hiringwire.model.request.NotificationRequest;
+import com.hiringwire.model.response.NotificationResponse;
+import com.hiringwire.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,12 +16,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
-    @Autowired
-    private IUserRepository userRepository;
-
-    @Autowired
-    private NotificationService notificationService;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     public List<User> getPendingEmployers() {
@@ -66,8 +68,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-    private NotificationDTO createNotification(Long userId, String action, String message) {
-        NotificationDTO notification = new NotificationDTO();
+    private NotificationRequest createNotification(Long userId, String action, String message) {
+        NotificationRequest notification = new NotificationRequest();
         notification.setUserId(userId);
         notification.setAction(action);
         notification.setMessage(message);

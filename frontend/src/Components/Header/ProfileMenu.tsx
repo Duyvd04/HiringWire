@@ -1,4 +1,4 @@
-import { Menu, rem, Avatar, Switch } from '@mantine/core';
+import { Menu, rem, Avatar, Switch, Drawer } from '@mantine/core';
 import {
     IconMessageCircle,
     IconLogout2,
@@ -13,31 +13,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { removeUser } from '../../Slices/UserSlice';
 import { removeJwt } from '../../Slices/JwtSlice';
+import Messages from '../../Data/Messages';
 
 const menuItems = {
     profile: {
-        // roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
         icon: IconUserCircle,
         label: 'Profile',
         path: '/profile'
     },
     messages: {
-        // roles: ['APPLICANT', 'EMPLOYER', 'ADMIN'],
         icon: IconMessageCircle,
         label: 'Messages',
-        path: '/messages'
+        path: '#'
     },
     resume: {
-        // roles: ['APPLICANT'],
         icon: IconFileText,
         label: 'Resume',
         path: '/cv-editor'
     }
 };
+
 const ProfileMenu = () => {
     const user = useSelector((state: any) => state.user);
     const profile = useSelector((state: any) => state.profile);
     const [opened, setOpened] = useState(false);
+    const [chatOpened, setChatOpened] = useState(false);
     const [checked, setChecked] = useState(false);
     const dispatch = useDispatch();
 
@@ -48,7 +48,23 @@ const ProfileMenu = () => {
 
     const renderMenuItem = (key: keyof typeof menuItems) => {
         const item = menuItems[key];
-        // if (!item.roles.includes(user.role)) return null;
+
+        if (key === 'messages') {
+            return (
+                <Menu.Item
+                    key={key}
+                    onClick={() => setChatOpened(true)}
+                    leftSection={
+                        <item.icon
+                            style={{ width: rem(14), height: rem(14) }}
+                            color="var(--mantine-color-deepSlate-9)"
+                        />
+                    }
+                >
+                    {item.label}
+                </Menu.Item>
+            );
+        }
 
         return (
             <Link to={item.path} key={key}>
@@ -67,70 +83,82 @@ const ProfileMenu = () => {
     };
 
     return (
-        <Menu shadow="md" width={200} opened={opened} onChange={setOpened}>
-            <Menu.Target>
-                <div className="flex items-center gap-2 cursor-pointer bg-deepSlate-100 p-2 rounded-full">
-                    <div className="xs-mx:hidden text-deepSlate-900">{user.name}</div>
-                    <Avatar
-                        src={profile.picture ? `data:image/jpeg;base64,${profile.picture}` : '/avatar.png'}
-                        alt="it's me"
-                    />
-                </div>
-            </Menu.Target>
-
-            <Menu.Dropdown className="bg-white">
-                {Object.keys(menuItems).map((key) => renderMenuItem(key as keyof typeof menuItems))}
-
-                <Menu.Item
-                    leftSection={
-                        <IconMoon
-                            style={{ width: rem(14), height: rem(14) }}
-                            color="var(--mantine-color-deepSlate-9)"
+        <>
+            <Menu shadow="md" width={200} opened={opened} onChange={setOpened}>
+                <Menu.Target>
+                    <div className="flex items-center gap-2 cursor-pointer bg-deepSlate-100 p-2 rounded-full">
+                        <div className="xs-mx:hidden text-deepSlate-900">{user.name}</div>
+                        <Avatar
+                            src={profile.picture ? `data:image/jpeg;base64,${profile.picture}` : '/avatar.png'}
+                            alt="it's me"
                         />
-                    }
-                    rightSection={
-                        <Switch
-                            size="sm"
-                            color="oceanTeal.4"
-                            className="cursor-pointer"
-                            onLabel={
-                                <IconSun
-                                    style={{ width: rem(14), height: rem(14) }}
-                                    stroke={2.5}
-                                    color="var(--mantine-color-oceanTeal-5)"
-                                />
-                            }
-                            offLabel={
-                                <IconMoonStars
-                                    style={{ width: rem(14), height: rem(14) }}
-                                    stroke={2.5}
-                                    color="var(--mantine-color-oceanTeal-5)"
-                                />
-                            }
-                            checked={checked}
-                            onChange={(event) => setChecked(event.currentTarget.checked)}
-                        />
-                    }
-                >
-                    Dark Mode
-                </Menu.Item>
+                    </div>
+                </Menu.Target>
 
-                <Menu.Divider />
+                <Menu.Dropdown className="bg-white">
+                    {Object.keys(menuItems).map((key) => renderMenuItem(key as keyof typeof menuItems))}
 
-                <Menu.Item
-                    onClick={handleLogout}
-                    color="oceanTeal.5"
-                    leftSection={
-                        <IconLogout2
-                            style={{ width: rem(14), height: rem(14) }}
-                            color="var(--mantine-color-oceanTeal-5)"
-                        />
-                    }
-                >
-                    Logout
-                </Menu.Item>
-            </Menu.Dropdown>
-        </Menu>
+                    <Menu.Item
+                        leftSection={
+                            <IconMoon
+                                style={{ width: rem(14), height: rem(14) }}
+                                color="var(--mantine-color-deepSlate-9)"
+                            />
+                        }
+                        rightSection={
+                            <Switch
+                                size="sm"
+                                color="oceanTeal.4"
+                                className="cursor-pointer"
+                                onLabel={
+                                    <IconSun
+                                        style={{ width: rem(14), height: rem(14) }}
+                                        stroke={2.5}
+                                        color="var(--mantine-color-oceanTeal-5)"
+                                    />
+                                }
+                                offLabel={
+                                    <IconMoonStars
+                                        style={{ width: rem(14), height: rem(14) }}
+                                        stroke={2.5}
+                                        color="var(--mantine-color-oceanTeal-5)"
+                                    />
+                                }
+                                checked={checked}
+                                onChange={(event) => setChecked(event.currentTarget.checked)}
+                            />
+                        }
+                    >
+                        Dark Mode
+                    </Menu.Item>
+
+                    <Menu.Divider />
+
+                    <Menu.Item
+                        onClick={handleLogout}
+                        color="oceanTeal.5"
+                        leftSection={
+                            <IconLogout2
+                                style={{ width: rem(14), height: rem(14) }}
+                                color="var(--mantine-color-oceanTeal-5)"
+                            />
+                        }
+                    >
+                        Logout
+                    </Menu.Item>
+                </Menu.Dropdown>
+            </Menu>
+
+            <Drawer
+                opened={chatOpened}
+                onClose={() => setChatOpened(false)}
+                title="Messages"
+                position="right"
+                size="lg"
+            >
+                <Messages />
+            </Drawer>
+        </>
     );
 };
 

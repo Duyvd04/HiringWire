@@ -2,17 +2,17 @@ package com.hiringwire.service;
 
 import java.util.List;
 
-import com.hiringwire.dto.ProfileDTO;
-import com.hiringwire.dto.UserDTO;
 import com.hiringwire.exception.HiringWireException;
+import com.hiringwire.model.request.ProfileRequest;
+import com.hiringwire.model.response.ProfileResponse;
 
 public interface ProfileService {
-	Long createProfile(UserDTO userDTO) throws HiringWireException;
+	Long createProfile(ProfileRequest profileRequest) throws HiringWireException;
 
-	ProfileDTO getProfile(Long id) throws HiringWireException;
+	ProfileResponse getProfile(Long id) throws HiringWireException;
 
-	ProfileDTO updateProfile(ProfileDTO profileDTO) throws HiringWireException;
+	ProfileResponse updateProfile(ProfileRequest profileRequest) throws HiringWireException;
 
-	List<ProfileDTO> getAllProfiles() throws HiringWireException;
+	List<ProfileResponse> getAllProfiles() throws HiringWireException;
 
 }

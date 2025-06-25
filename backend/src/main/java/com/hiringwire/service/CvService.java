@@ -1,28 +1,33 @@
 package com.hiringwire.service;
 
-import com.hiringwire.entity.Cv;
-import com.hiringwire.repository.ICvRepository;
+import com.hiringwire.model.Cv;
+import com.hiringwire.model.User;
+import com.hiringwire.repository.CvRepository;
+import com.hiringwire.repository.UserRepository;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CvService {
-    @Autowired
-    private ICvRepository cvRepository;
+    private final CvRepository cvRepository;
+    private final UserRepository userRepository;
 
     public Cv saveCv(Cv cv) {
         return cvRepository.save(cv);
     }
 
     public List<Cv> getCvsByUserId(Long userId) {
-        return cvRepository.findByUserId(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return cvRepository.findByUser(user);
     }
 
     public Cv getCvById(Long id) {

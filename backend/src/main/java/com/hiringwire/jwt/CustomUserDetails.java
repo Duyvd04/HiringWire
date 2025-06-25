@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.hiringwire.dto.AccountType;
+import com.hiringwire.model.enums.AccountType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

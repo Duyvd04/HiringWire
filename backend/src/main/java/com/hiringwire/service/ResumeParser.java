@@ -244,3 +244,64 @@ public class ResumeParser {
         return languages;
     }
 }
+//package com.hiringwire.service;
+//
+//import com.fasterxml.jackson.databind.JsonNode;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.core.io.ByteArrayResource;
+//import org.springframework.http.*;
+//import org.springframework.stereotype.Service;
+//import org.springframework.util.LinkedMultiValueMap;
+//import org.springframework.util.MultiValueMap;
+//import org.springframework.web.client.RestTemplate;
+//
+//import java.util.*;
+//
+//@Service
+//public class ResumeParser {
+//
+//    @Autowired
+//    private RestTemplate restTemplate;
+//
+//    public Map<String, Object> parseResume(byte[] resumeData) throws Exception {
+//        if (resumeData == null || resumeData.length == 0) {
+//            throw new Exception("Invalid PDF data provided");
+//        }
+//
+//        String flaskUrl = "http://localhost:5000/parse-resume";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//        body.add("file", new ByteArrayResource(resumeData) {
+//            @Override
+//            public String getFilename() {
+//                return "resume.pdf";
+//            }
+//        });
+//
+//        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+//        ResponseEntity<String> response = restTemplate.postForEntity(flaskUrl, requestEntity, String.class);
+//
+//        if (response.getStatusCode() != HttpStatus.OK) {
+//            throw new Exception("Failed to parse resume: " + response.getBody());
+//        }
+//
+//        ObjectMapper mapper = new ObjectMapper();
+//        JsonNode jsonNode = mapper.readTree(response.getBody());
+//
+//        Map<String, Object> parsedInfo = new HashMap<>();
+//        parsedInfo.put("name", jsonNode.get("name").asText());
+//        parsedInfo.put("email", jsonNode.get("email").asText());
+//        parsedInfo.put("phone", jsonNode.get("phone").asText());
+//        parsedInfo.put("links", mapper.convertValue(jsonNode.get("links"), List.class));
+//        parsedInfo.put("skills", mapper.convertValue(jsonNode.get("skills"), Map.class));
+//        parsedInfo.put("education", mapper.convertValue(jsonNode.get("education"), List.class));
+//        parsedInfo.put("experience", mapper.convertValue(jsonNode.get("experience"), List.class));
+//        parsedInfo.put("certifications", mapper.convertValue(jsonNode.get("certifications"), List.class));
+//        parsedInfo.put("languages", mapper.convertValue(jsonNode.get("languages"), List.class));
+//
+//        return parsedInfo;
+//    }
+//}

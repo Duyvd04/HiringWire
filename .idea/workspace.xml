@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1d15ee67-16c0-45be-bb24-ade4998d468e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/ChatMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/MyConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/MyConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/AdminAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/AuthAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/CvAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/CvController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/JobAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/JobController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/NotificationAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/NotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/ProfileAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/ProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/UserAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/api/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/config/WebSocketConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/AccountStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/enums/AccountStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/AccountType.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/enums/AccountType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/ApplicantDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/ApplicantDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/ApplicationStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/ApplicationStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/JobDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/JobDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/JobStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/enums/JobStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/LoginDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/LoginDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/MessageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/enums/MessageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/NotificationDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/NotificationDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/NotificationStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/enums/NotificationStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/ProfileDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/ProfileDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/UserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/dto/UserDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/Applicant.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/Applicant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/ChatMessage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/Cv.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/Cv.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/Job.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/Job.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/Notification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/OTP.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/OTP.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/Profile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/jwt/CustomUserDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/jwt/CustomUserDetails.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/jwt/MyUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/jwt/MyUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/ICvRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/CvRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/IJobRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/JobRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/INotificationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/NotificationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/IOTPRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/OTPRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/IProfileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/ProfileRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/IUserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/AdminService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/AdminService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/AdminServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/AdminServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/CvService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/CvService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/JobService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/JobService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/JobServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/JobServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/NotificationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/PdfGeneratorService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/PdfGeneratorService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/ProfileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/ProfileService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/ProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/ProfileServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/ResumeParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/ResumeParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/hiringwire/service/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/dbnavigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.idea/dbnavigator.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Components/Header/ProfileMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Components/Header/ProfileMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Services/JobService.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Services/JobService.tsx" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="2z0I3ogprswQsKHyTB9TbQl7Wnv" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "demo",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/intern",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1d15ee67-16c0-45be-bb24-ade4998d468e" name="Changes" comment="" />
+      <created>1750861366574</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1750861366574</updated>
+      <workItem from="1750861367733" duration="28000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/frontend/node_modules/tailwindcss/stubs/tailwind.config.js" />
+        <option value="$PROJECT_DIR$/frontend/node_modules/tailwindcss/stubs/tailwind.config.cjs" />
+      </list>
+    </option>
+  </component>
+</project>

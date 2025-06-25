@@ -3,7 +3,7 @@ package com.hiringwire.dto;
 import java.util.Base64;
 import java.util.List;
 
-import com.hiringwire.entity.Profile;
+import com.hiringwire.model.Profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

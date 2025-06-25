@@ -1,246 +1,281 @@
 package com.hiringwire.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 import com.hiringwire.dto.*;
-import com.hiringwire.entity.Profile;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hiringwire.mapper.UserMapper;
+import com.hiringwire.model.*;
+import com.hiringwire.exception.HiringWireException;
+import com.hiringwire.model.enums.AccountStatus;
+import com.hiringwire.model.enums.AccountType;
+import com.hiringwire.model.request.LoginRequest;
+import com.hiringwire.model.request.NotificationRequest;
+import com.hiringwire.model.request.UserRequest;
+import com.hiringwire.model.response.UserResponse;
+import com.hiringwire.repository.OTPRepository;
+import com.hiringwire.repository.UserRepository;
+import com.hiringwire.utility.Data;
+import com.hiringwire.utility.Utilities;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.hiringwire.entity.OTP;
-import com.hiringwire.entity.User;
-import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.repository.IOTPRepository;
-import com.hiringwire.repository.IUserRepository;
-import com.hiringwire.utility.Data;
-import com.hiringwire.utility.Utilities;
-
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service("userService")
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	@Autowired
-	private IUserRepository IUserRepository;
+    private final UserRepository IUserRepository;
 
-	@Autowired
-	private IOTPRepository IOTPRepository;
+    private final OTPRepository IOTPRepository;
 
-	@Autowired
-	private ProfileService profileService;
+    private final PasswordEncoder passwordEncoder;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+    private final JavaMailSender mailSender;
 
-	@Autowired
-	private JavaMailSender mailSender;
+    private final NotificationService notificationService;
 
-	@Autowired
-	private NotificationService notificationService;
+    private final Utilities utilities;
 
-	@Autowired
-	private Utilities utilities;
-
-	@Override
-	public UserDTO registerUser(UserDTO userDTO) throws HiringWireException {
-		Optional<User> optional = IUserRepository.findByEmail(userDTO.getEmail());
-		if (optional.isPresent())
-			throw new HiringWireException("USER_FOUND");
-
-		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-		// Create Profile entity
-		Profile profile = new Profile();
-		profile.setName(userDTO.getName());
-		profile.setEmail(userDTO.getEmail());
-		profile.setAccountType(userDTO.getAccountType().toString());
-
-		// Set initial status based on account type
-		if (userDTO.getAccountType() == AccountType.EMPLOYER) {
-			userDTO.setAccountStatus(AccountStatus.PENDING_APPROVAL);
-		} else {
-			userDTO.setAccountStatus(AccountStatus.ACTIVE);
-		}
-
-		userDTO.setLastLoginDate(LocalDateTime.now());
-
-		// Create User with Profile entity
-		User user = userDTO.toEntity(profile);
-
-		// Save User (and Profile through cascade)
-		user = IUserRepository.save(user);
-		user.setPassword(null);
-		return user.toDTO();
-	}
+    private final UserMapper userMapper;
 
 
-	@Override
-	@Transactional
-	public UserDTO loginUser(LoginDTO loginDTO) throws HiringWireException {
-		User user = IUserRepository.findByEmail(loginDTO.getEmail())
-				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+    @Override
+    public UserResponse registerUser(UserRequest userRequest) throws HiringWireException {
+        if (IUserRepository.existsByEmail(userRequest.getEmail())) {
+            throw new HiringWireException("User with this email already exists");
+        }
 
-		// Check account status first
-		if (user.getAccountStatus() == AccountStatus.BLOCKED) {
-			throw new HiringWireException("ACCOUNT_BLOCKED");
-		}
+        User user = userMapper.toEntity(userRequest);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-		if (user.getAccountStatus() == AccountStatus.PENDING_APPROVAL) {
-			throw new HiringWireException("ACCOUNT_PENDING_APPROVAL");
-		}
+        Profile profile = new Profile();
+        profile.setName(userRequest.getName());
+        profile.setEmail(userRequest.getEmail());
+        profile.setAccountType(userRequest.getAccountType().toString());
 
-		if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-			throw new HiringWireException("INVALID_CREDENTIALS");
-		}
+        user.setProfile(profile);
 
-		user.setLastLoginDate(LocalDateTime.now());
-		if (user.getAccountStatus() == AccountStatus.INACTIVE) {
-			String oldStatus = user.getAccountStatus().toString();
-			user.setAccountStatus(AccountStatus.ACTIVE);
-			sendStatusChangeNotification(user, oldStatus, "ACTIVE",
-					"Your account has been reactivated after successful login.");
-		}
+        user.setAccountStatus(userRequest.getAccountType() == AccountType.EMPLOYER
+                ? AccountStatus.PENDING_APPROVAL
+                : AccountStatus.ACTIVE);
 
-		user = IUserRepository.save(user);
-		UserDTO userDTO = user.toDTO();
-		userDTO.setPassword(null);
-		return userDTO;
-	}
+        user.setLastLoginDate(LocalDateTime.now());
 
-	@Override
-	public Boolean sendOTP(String email) throws Exception {
-		User user = IUserRepository.findByEmail(email)
-				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
-		MimeMessage mm = mailSender.createMimeMessage();
-		MimeMessageHelper message = new MimeMessageHelper(mm, true);
-		message.setTo(email);
-		message.setFrom("vuducduy1112004@gmail.com", "HiringWire");
-		message.setSubject("Your OTP Code");
-		String generatedOtp = utilities.generateOTP();
-		OTP otp = new OTP(email, generatedOtp, LocalDateTime.now());
-		IOTPRepository.save(otp);
-		message.setText(Data.getMessageBody(generatedOtp, user.getName()), true);
-		mailSender.send(mm);
-		return true;
-	}
-
-	@Override
-	public Boolean verifyOtp(String email, String otp) throws HiringWireException {
-		OTP otpEntity = IOTPRepository.findById(email)
-				.orElseThrow(() -> new HiringWireException("OTP_NOT_FOUND"));
-		if (!otpEntity.getOtpCode().equals(otp))
-			throw new HiringWireException("OTP_INCORRECT");
-		return true;
-	}
-
-	@Scheduled(fixedRate = 60000)
-	public void removeExpiredOTPs() {
-		LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(5);
-		List<OTP> expiredOTPs = IOTPRepository.findByCreationTimeBefore(expiryTime);
-		if (!expiredOTPs.isEmpty()) {
-			IOTPRepository.deleteAll(expiredOTPs);
-			System.out.println("Removed " + expiredOTPs.size() + " expired OTPs");
-		}
-	}
-
-	@Override
-	public ResponseDTO changePassword(LoginDTO loginDTO) throws HiringWireException {
-		User user = IUserRepository.findByEmail(loginDTO.getEmail())
-				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
-		user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
-		IUserRepository.save(user);
-		NotificationDTO noti = new NotificationDTO();
-		noti.setUserId(user.getId());
-		noti.setMessage("Password Reset Successful");
-		noti.setAction("Password Reset");
-		notificationService.sendNotification(noti);
-		return new ResponseDTO("Password changed successfully.");
-	}
+        User savedUser = IUserRepository.save(user);
+        return userMapper.toResponse(savedUser);
+    }
 
 
-	@Override
-	public List<UserDTO> getAllUsers() throws HiringWireException {
-		List<User> users = IUserRepository.findAll();
-		if (users.isEmpty())
-			throw new HiringWireException("NO_USERS_FOUND");
-		return users.stream().map((x) -> x.toDTO()).toList();
-	}
+    @Override
+    @Transactional
+    public UserResponse loginUser(LoginRequest loginRequest) throws HiringWireException {
+        User user = IUserRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 
-	@Override
-	public void changeAccountStatus(Long id, String accountStatus) throws HiringWireException {
-		User user = IUserRepository.findById(id)
-				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+        // Check account status first
+        if (user.getAccountStatus() == AccountStatus.BLOCKED) {
+            throw new HiringWireException("ACCOUNT_BLOCKED");
+        }
 
-		String oldStatus = user.getAccountStatus().toString();
-		String reason = "";
+        if (user.getAccountStatus() == AccountStatus.PENDING_APPROVAL) {
+            throw new HiringWireException("ACCOUNT_PENDING_APPROVAL");
+        }
 
-		if (accountStatus.equalsIgnoreCase("ACTIVE")) {
-			user.setAccountStatus(AccountStatus.ACTIVE);
-			reason = "Your account is now active.";
-		} else if (accountStatus.equalsIgnoreCase("INACTIVE")) {
-			user.setAccountStatus(AccountStatus.INACTIVE);
-			reason = "Your account has been marked as inactive due to inactivity.";
-		} else if (accountStatus.equalsIgnoreCase("BLOCKED")) {
-			user.setAccountStatus(AccountStatus.BLOCKED);
-			reason = "Your account has been blocked. Please contact support.";
-		} else {
-			throw new HiringWireException("INVALID_STATUS");
-		}
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new HiringWireException("INVALID_CREDENTIALS");
+        }
 
-		IUserRepository.save(user);
-		sendStatusChangeNotification(user, oldStatus, accountStatus.toUpperCase(), reason);
-	}
+        user.setLastLoginDate(LocalDateTime.now());
+        if (user.getAccountStatus() == AccountStatus.INACTIVE) {
+            String oldStatus = user.getAccountStatus().toString();
+            user.setAccountStatus(AccountStatus.ACTIVE);
+            sendStatusChangeNotification(user, oldStatus, "ACTIVE",
+                    "Your account has been reactivated after successful login.");
+        }
 
-	@Override
-	public UserDTO getUserByEmail(String email) throws HiringWireException {
-		return IUserRepository.findByEmail(email)
-				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND")).toDTO();
-	}
-	@Scheduled(cron = "0 0 0 * * ?") // Runs daily at midnight
-	public void checkInactiveUsers() throws HiringWireException {
-		LocalDateTime inactiveThreshold = LocalDateTime.now().minusDays(15);
-		List<User> users = IUserRepository.findByLastLoginDateBeforeAndAccountStatus(
-				inactiveThreshold, AccountStatus.ACTIVE);
 
-		for (User user : users) {
-			String oldStatus = user.getAccountStatus().toString();
-			user.setAccountStatus(AccountStatus.INACTIVE);
-			IUserRepository.save(user);
+        User savedUser = IUserRepository.save(user);
+        return userMapper.toResponse(savedUser);
+    }
 
-			sendStatusChangeNotification(user, oldStatus, "INACTIVE",
-					"Your account has been marked as inactive due to 15 days of inactivity.");
-		}
-	}
-	private void sendStatusChangeNotification(User user, String oldStatus, String newStatus, String reason) throws HiringWireException {
-		// In-app notification
-		NotificationDTO notification = new NotificationDTO();
-		notification.setUserId(user.getId());
-		notification.setAction("Account Status Change");
+    @Override
+    public Boolean sendOTP(String email) throws Exception {
+        User user = IUserRepository.findByEmail(email)
+                .orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 
-		String message = String.format("Your account status has been changed from %s to %s. %s",
-				oldStatus, newStatus, reason);
-		notification.setMessage(message);
+        MimeMessage mm = mailSender.createMimeMessage();
+        MimeMessageHelper message = new MimeMessageHelper(mm, true);
+        message.setTo(email);
+        message.setFrom("vuducduy1112004@gmail.com", "HiringWire");
+        message.setSubject("Your OTP Code");
 
-		notificationService.sendNotification(notification);
+        String generatedOtp = utilities.generateOTP();
 
-		// Email notification
-		try {
-			MimeMessage email = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(email, true);
-			helper.setTo(user.getEmail());
-			helper.setFrom("vuducduy1112004@gmail.com", "HiringWire");
-			helper.setSubject("Account Status Change Notification");
-			helper.setText(message, true);
-			mailSender.send(email);
-		} catch (Exception e) {
-			throw new HiringWireException("Failed to send email notification: " + e.getMessage());
-		}
-	}
+        OTP otp = new OTP();
+        otp.setUser(user);
+        otp.setOtpCode(generatedOtp);
+        otp.setCreationTime(LocalDateTime.now());
 
+        IOTPRepository.save(otp);
+
+        message.setText(Data.getMessageBody(generatedOtp, user.getName()), true);
+        mailSender.send(mm);
+
+        return true;
+    }
+
+
+    @Override
+    public Boolean verifyOtp(String email, String otp) throws HiringWireException {
+        OTP otpEntity = IOTPRepository.findByUserEmail(email)
+                .orElseThrow(() -> new HiringWireException("OTP_NOT_FOUND"));
+
+        if (!otpEntity.getOtpCode().equals(otp)) {
+            throw new HiringWireException("OTP_INCORRECT");
+        }
+
+        if (otpEntity.getCreationTime().isBefore(LocalDateTime.now().minusMinutes(5))) {
+            throw new HiringWireException("OTP_EXPIRED");
+        }
+
+        return true;
+    }
+
+
+
+
+    @Scheduled(fixedRate = 60000)
+    public void removeExpiredOTPs() {
+        LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(5);
+        List<OTP> expiredOTPs = IOTPRepository.findByCreationTimeBefore(expiryTime);
+        if (!expiredOTPs.isEmpty()) {
+            IOTPRepository.deleteAll(expiredOTPs);
+            System.out.println("Removed " + expiredOTPs.size() + " expired OTPs");
+        }
+    }
+
+    @Override
+    public ResponseDTO changePassword(LoginRequest loginRequest) throws HiringWireException {
+        User user = IUserRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+        user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
+        IUserRepository.save(user);
+        NotificationRequest noti = new NotificationRequest();
+        noti.setUserId(user.getId());
+        noti.setMessage("Password Reset Successful");
+        noti.setAction("Password Reset");
+        notificationService.sendNotification(noti);
+        return new ResponseDTO("Password changed successfully.");
+    }
+
+
+    @Override
+    public List<UserResponse> getAllUsers() throws HiringWireException {
+        List<User> users = IUserRepository.findAll();
+        if (users.isEmpty())
+            throw new HiringWireException("NO_USERS_FOUND");
+        return users.stream().map(userMapper::toResponse).toList();
+    }
+
+    @Override
+    public void changeAccountStatus(Long id, String accountStatus) throws HiringWireException {
+        User user = IUserRepository.findById(id)
+                .orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
+
+        String oldStatus = user.getAccountStatus().toString();
+        String reason;
+
+        if (accountStatus.equalsIgnoreCase("ACTIVE")) {
+            user.setAccountStatus(AccountStatus.ACTIVE);
+            reason = "Your account is now active.";
+        } else if (accountStatus.equalsIgnoreCase("INACTIVE")) {
+            user.setAccountStatus(AccountStatus.INACTIVE);
+            reason = "Your account has been marked as inactive due to inactivity.";
+        } else if (accountStatus.equalsIgnoreCase("BLOCKED")) {
+            user.setAccountStatus(AccountStatus.BLOCKED);
+            reason = "Your account has been blocked. Please contact support.";
+        } else {
+            throw new HiringWireException("INVALID_STATUS");
+        }
+
+        IUserRepository.save(user);
+        sendStatusChangeNotification(user, oldStatus, accountStatus.toUpperCase(), reason);
+    }
+
+    @Override
+    public UserResponse getUserByEmail(String email) throws HiringWireException {
+        return userMapper.toResponse(IUserRepository.findByEmail(email)
+                .orElseThrow(() -> new HiringWireException("USER_NOT_FOUND")));
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?") // Runs daily at midnight
+    public void checkInactiveUsers() throws HiringWireException {
+        LocalDateTime inactiveThreshold = LocalDateTime.now().minusDays(15);
+        List<User> users = IUserRepository.findByLastLoginDateBeforeAndAccountStatus(
+                inactiveThreshold, AccountStatus.ACTIVE);
+
+        for (User user : users) {
+            String oldStatus = user.getAccountStatus().toString();
+            user.setAccountStatus(AccountStatus.INACTIVE);
+            IUserRepository.save(user);
+
+            sendStatusChangeNotification(user, oldStatus, "INACTIVE",
+                    "Your account has been marked as inactive due to 15 days of inactivity.");
+        }
+    }
+
+    private void sendStatusChangeNotification(User user, String oldStatus, String newStatus, String reason) throws HiringWireException {
+        // In-app notification
+        NotificationRequest notification = new NotificationRequest();
+        notification.setUserId(user.getId());
+        notification.setAction("Account Status Change");
+
+        String message = String.format("Your account status has been changed from %s to %s. %s",
+                oldStatus, newStatus, reason);
+        notification.setMessage(message);
+
+        notificationService.sendNotification(notification);
+
+        // Email notification
+        try {
+            MimeMessage email = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(email, true);
+            helper.setTo(user.getEmail());
+            helper.setFrom("vuducduy1112004@gmail.com", "HiringWire");
+            helper.setSubject("Account Status Change Notification");
+            helper.setText(message, true);
+            mailSender.send(email);
+        } catch (Exception e) {
+            throw new HiringWireException("Failed to send email notification: " + e.getMessage());
+        }
+    }
+
+    public List<UserResponse> getUsersForChat(String accountType, Long userId) {
+        List<User> users;
+        try {
+            if ("ADMIN".equals(accountType)) {
+                users = IUserRepository.findAll();
+            } else if ("APPLICANT".equals(accountType)) {
+                users = IUserRepository.findByAccountType(AccountType.EMPLOYER);
+            } else if ("EMPLOYER".equals(accountType)) {
+                users = IUserRepository.findByAccountType(AccountType.APPLICANT);
+            } else {
+                throw new IllegalArgumentException("Invalid account type: " + accountType);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid account type: " + accountType, e);
+        }
+        return users.stream()
+                .filter(user -> !user.getId().equals(userId))
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }

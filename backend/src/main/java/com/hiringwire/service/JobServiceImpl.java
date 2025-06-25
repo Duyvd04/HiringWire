@@ -1,6 +1,5 @@
 package com.hiringwire.service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -8,99 +7,99 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.hiringwire.entity.User;
-import com.hiringwire.repository.IUserRepository;
+import com.hiringwire.mapper.ApplicantMapper;
+import com.hiringwire.mapper.JobMapper;
+import com.hiringwire.model.User;
+import com.hiringwire.model.request.ApplicantRequest;
+import com.hiringwire.model.request.JobRequest;
+import com.hiringwire.model.request.NotificationRequest;
+import com.hiringwire.model.response.JobResponse;
+import com.hiringwire.repository.UserRepository;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.hiringwire.dto.ApplicantDTO;
 import com.hiringwire.dto.Application;
-import com.hiringwire.dto.ApplicationStatus;
-import com.hiringwire.dto.JobDTO;
-import com.hiringwire.dto.JobStatus;
-import com.hiringwire.dto.NotificationDTO;
-import com.hiringwire.entity.Applicant;
-import com.hiringwire.entity.Job;
+import com.hiringwire.model.ApplicationStatus;
+import com.hiringwire.model.enums.JobStatus;
+import com.hiringwire.model.Applicant;
+import com.hiringwire.model.Job;
 import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.repository.IJobRepository;
+import com.hiringwire.repository.JobRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("jobService")
+@RequiredArgsConstructor
 public class JobServiceImpl implements JobService {
-
-	@Autowired
-	private IJobRepository IJobRepository;
-
-	@Autowired
-	private NotificationService notificationService;
-
-	@Autowired
-	private JavaMailSender mailSender;
-
-	@Autowired
-	private IUserRepository userRepository;
-
-	@Autowired
-	private ResumeParser resumeParser;
-
-	@Autowired
-	private PdfGeneratorService pdfGeneratorService;
+	private final JobRepository IJobRepository;
+	private final NotificationService notificationService;
+	private final JavaMailSender mailSender;
+	private final UserRepository userRepository;
+	private final ResumeParser resumeParser;
+	private final PdfGeneratorService pdfGeneratorService;
+	private final JobMapper jobMapper;
+	private final ApplicantMapper applicantMapper;
 
 	@Override
-	@CachePut(value = "jobs", key = "#result.id", condition = "#result != null")
-	public JobDTO postJob(JobDTO jobDTO) throws HiringWireException {
-		if (jobDTO.getId() == null || jobDTO.getId() == 0) {
-			jobDTO.setPostTime(LocalDateTime.now());
-			jobDTO.setJobStatus(JobStatus.PENDING);
+//	@CachePut(value = "jobs", key = "#result.id", condition = "#result != null")
+	public JobResponse postJob(JobRequest jobRequest) throws HiringWireException {
+		if (jobRequest.getId() == null || jobRequest.getId() == 0) {
+			Job job = jobMapper.toEntity(jobRequest);
+			job.setPostTime(LocalDateTime.now());
+			job.setJobStatus(JobStatus.PENDING);
 
-			NotificationDTO notiDto = new NotificationDTO();
+			NotificationRequest notiDto = new NotificationRequest();
 			notiDto.setAction("Job Posted");
-			notiDto.setMessage("Job Posted Successfully for " + jobDTO.getJobTitle() + " at " + jobDTO.getCompany());
-			notiDto.setUserId(jobDTO.getPostedBy());
+			notiDto.setMessage("Job Posted Successfully for " + job.getJobTitle() + " at " + job.getCompany());
+			notiDto.setUserId(job.getPostedBy());
 
-			Job savedJob = IJobRepository.save(jobDTO.toEntity());
+			Job savedJob = IJobRepository.save(job);
 			notiDto.setRoute("/posted-jobs/" + savedJob.getId());
 			notificationService.sendNotification(notiDto);
-			return savedJob.toDTO();
+			return jobMapper.toResponse(savedJob);
 		} else {
-			Job job = IJobRepository.findById(jobDTO.getId())
+			Job existing = IJobRepository.findById(jobRequest.getId())
 					.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
-			if (job.getJobStatus().equals(JobStatus.DRAFT) || jobDTO.getJobStatus().equals(JobStatus.CLOSED))
-				jobDTO.setPostTime(LocalDateTime.now());
-			return IJobRepository.save(jobDTO.toEntity()).toDTO();
+
+			if (existing.getJobStatus() == JobStatus.DRAFT || jobRequest.getJobStatus() == JobStatus.CLOSED) {
+				existing.setPostTime(LocalDateTime.now());
+			}
+
+			Job updated = jobMapper.toEntity(jobRequest);
+			updated.setId(existing.getId());
+			return jobMapper.toResponse(IJobRepository.save(updated));
 		}
 	}
 	@Override
-	@Cacheable(value = "jobsList", unless = "#result.isEmpty()")
-	public List<JobDTO> getAllJobs() throws HiringWireException {
+//	@Cacheable(value = "jobsList", unless = "#result.isEmpty()")
+	public List<JobResponse> getAllJobs() throws HiringWireException {
 		List<Job> jobs = IJobRepository.findAll();
 		if (jobs.isEmpty()) {
 			throw new HiringWireException("NO_JOBS_FOUND");
 		}
-		return jobs.stream().map(Job::toDTO).collect(Collectors.toList());
+		return jobs.stream().map(jobMapper::toResponse).collect(Collectors.toList());
 	}
 
 	@Override
-	@Cacheable(value = "jobs", key = "#id")
-	public JobDTO getJob(Long id) throws HiringWireException {
-		return IJobRepository.findById(id).orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND")).toDTO();
+//	@Cacheable(value = "jobs", key = "#id")
+	public JobResponse getJob(Long id) throws HiringWireException {
+		Job job = IJobRepository.findById(id)
+				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
+		return jobMapper.toResponse(job);
 	}
 
 	@Override
 	@Transactional
-	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, allEntries = true)
-	public void applyJob(Long id, ApplicantDTO applicantDTO) throws HiringWireException {
+//	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, allEntries = true)
+	public void applyJob(Long id, ApplicantRequest applicantRequest) throws HiringWireException {
 		Job job = IJobRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
 
-		User user = userRepository.findById(applicantDTO.getApplicantId())
+		User user = userRepository.findById(applicantRequest.getApplicantId())
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND"));
 
 		List<Applicant> applicants = job.getApplicants();
@@ -108,38 +107,39 @@ public class JobServiceImpl implements JobService {
 			applicants = new ArrayList<>();
 		}
 
-		// Check if user has already applied
-		if (applicants.stream().anyMatch(x -> x.getUser().getId().equals(applicantDTO.getApplicantId()))) {
+		if (applicants.stream().anyMatch(x -> x.getUser().getId().equals(applicantRequest.getApplicantId()))) {
 			throw new HiringWireException("JOB_APPLIED_ALREADY");
 		}
 
-		// Process resume if provided
-		if (applicantDTO.getResume() != null) {
+		if (applicantRequest.getResume() != null) {
 			try {
-				byte[] resumeData = Base64.getDecoder().decode(applicantDTO.getResume());
+				byte[] resumeData = Base64.getDecoder().decode(applicantRequest.getResume());
 				Map<String, Object> parsedInfo = resumeParser.parseResume(resumeData);
 				byte[] extractedPdf = pdfGeneratorService.generateExtractedPdf(parsedInfo);
-				applicantDTO.setExtractedResume(Base64.getEncoder().encodeToString(extractedPdf));
-			} catch (IOException e) {
+				applicantRequest.setExtractedResume(Base64.getEncoder().encodeToString(extractedPdf));
+
+				// Set parsed fields
+				applicantRequest.setName((String) parsedInfo.get("name"));
+				applicantRequest.setEmail((String) parsedInfo.get("email"));
+				applicantRequest.setPhone((String) parsedInfo.get("phone"));
+			} catch (Exception e) {
 				throw new HiringWireException("Failed to process resume: " + e.getMessage());
 			}
 		}
 
-		// Create new Applicant
-		Applicant applicant = new Applicant();
-		applicant.setUser(user); // Set User relationship
-		applicant.setPhone(applicantDTO.getPhone());
-		applicant.setWebsite(applicantDTO.getWebsite());
-		applicant.setResume(applicantDTO.getResume() != null ?
-				Base64.getDecoder().decode(applicantDTO.getResume()) : null);
-		applicant.setExtractedResume(applicantDTO.getExtractedResume() != null ?
-				Base64.getDecoder().decode(applicantDTO.getExtractedResume()) : null);
-		applicant.setCoverLetter(applicantDTO.getCoverLetter());
+		Applicant applicant = applicantMapper.toEntity(applicantRequest);
+		applicant.setUser(user);
+		applicant.setPhone(applicantRequest.getPhone());
+		applicant.setWebsite(applicantRequest.getWebsite());
+		applicant.setResume(applicantRequest.getResume() != null ?
+				Base64.getDecoder().decode(applicantRequest.getResume()) : null);
+		applicant.setExtractedResume(applicantRequest.getExtractedResume() != null ?
+				Base64.getDecoder().decode(applicantRequest.getExtractedResume()) : null);
+		applicant.setCoverLetter(applicantRequest.getCoverLetter());
 		applicant.setApplicationStatus(ApplicationStatus.APPLIED);
 		applicant.setTimestamp(LocalDateTime.now());
 		applicant.setJob(job);
 
-		// Add to applicants list and save
 		applicants.add(applicant);
 		job.setApplicants(applicants);
 		IJobRepository.save(job);
@@ -147,16 +147,16 @@ public class JobServiceImpl implements JobService {
 		sendApplicationEmail(user.getEmail(), job);
 	}
 	@Override
-	@Cacheable(value = "history", key = "#id + '-' + #applicationStatus")
-	public List<JobDTO> getHistory(Long id, ApplicationStatus applicationStatus) {
+//	@Cacheable(value = "history", key = "#id + '-' + #applicationStatus")
+	public List<JobResponse> getHistory(Long id, ApplicationStatus applicationStatus) {
 		return IJobRepository.findByApplicantIdAndApplicationStatus(id, applicationStatus)
-				.stream().map((x) -> x.toDTO()).toList();
+				.stream().map(jobMapper::toResponse).toList();
 	}
 
 	@Override
-	@Cacheable(value = "postedJobs", key = "#id")
-	public List<JobDTO> getJobsPostedBy(Long id) throws HiringWireException {
-		return IJobRepository.findByPostedBy(id).stream().map((x) -> x.toDTO()).toList();
+//	@Cacheable(value = "postedJobs", key = "#id")
+	public List<JobResponse> getJobsPostedBy(Long id) throws HiringWireException {
+		return IJobRepository.findByPostedBy(id).stream().map(jobMapper::toResponse).toList();
 	}
 
 
@@ -204,7 +204,7 @@ public class JobServiceImpl implements JobService {
 		IJobRepository.deleteById(id);
 	}
 	private void sendNotifications(Application application, Job job) {
-		NotificationDTO notiDto = new NotificationDTO();
+		NotificationRequest notiDto = new NotificationRequest();
 		notiDto.setAction("Interview Scheduled");
 		notiDto.setMessage("Interview scheduled for job id: " + application.getId());
 		notiDto.setUserId(application.getApplicantId());
@@ -273,16 +273,15 @@ public class JobServiceImpl implements JobService {
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
 	}
 	@Override
-	@Cacheable(value = "pendingJobs")
-	public List<JobDTO> getPendingJobs() throws HiringWireException {
+//	@Cacheable(value = "pendingJobs")
+	public List<JobResponse> getPendingJobs() throws HiringWireException {
 		List<Job> jobs = IJobRepository.findByJobStatus(JobStatus.PENDING);
-		return jobs.stream()
-				.map(Job::toDTO)
+		return jobs.stream().map(jobMapper::toResponse)
 				.collect(Collectors.toList());
 	}
 	@Override
 	@Transactional
-	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
+//	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
 	public void approveJob(Long id) throws HiringWireException {
 		Job job = IJobRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
@@ -290,7 +289,7 @@ public class JobServiceImpl implements JobService {
 		job.setJobStatus(JobStatus.ACTIVE);
 		IJobRepository.save(job);
 
-		NotificationDTO notification = new NotificationDTO();
+		NotificationRequest notification = new NotificationRequest();
 		notification.setUserId(job.getPostedBy());
 		notification.setAction("Job Approved");
 		notification.setMessage("Your job posting for " + job.getJobTitle() + " has been approved");
@@ -300,7 +299,7 @@ public class JobServiceImpl implements JobService {
 
 	@Override
 	@Transactional
-	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
+//	@CacheEvict(value = {"jobs", "jobsList", "history", "postedJobs", "pendingJobs"}, key = "#id")
 	public void rejectJob(Long id) throws HiringWireException {
 		Job job = IJobRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("JOB_NOT_FOUND"));
@@ -308,7 +307,7 @@ public class JobServiceImpl implements JobService {
 		job.setJobStatus(JobStatus.REJECTED);
 		IJobRepository.save(job);
 
-		NotificationDTO notification = new NotificationDTO();
+		NotificationRequest notification = new NotificationRequest();
 		notification.setUserId(job.getPostedBy());
 		notification.setAction("Job Rejected");
 		notification.setMessage("Your job posting for " + job.getJobTitle() + " has been rejected");

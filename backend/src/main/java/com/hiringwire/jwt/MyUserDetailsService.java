@@ -1,11 +1,10 @@
 package com.hiringwire.jwt;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.hiringwire.dto.AccountStatus;
-import com.hiringwire.entity.User;
-import com.hiringwire.repository.IUserRepository;
+import com.hiringwire.model.enums.AccountStatus;
+import com.hiringwire.model.User;
+import com.hiringwire.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -15,15 +14,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.hiringwire.dto.UserDTO;
-import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.service.UserService;
-
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
 	@Autowired
-	private IUserRepository userRepository;
+	private UserRepository userRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

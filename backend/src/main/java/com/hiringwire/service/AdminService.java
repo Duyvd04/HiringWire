@@ -1,6 +1,6 @@
 package com.hiringwire.service;
 
-import com.hiringwire.entity.User;
+import com.hiringwire.model.User;
 import com.hiringwire.exception.HiringWireException;
 import java.util.List;
 

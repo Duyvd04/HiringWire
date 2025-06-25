@@ -3,30 +3,29 @@ package com.hiringwire.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiringwire.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hiringwire.mapper.ProfileMapper;
+import com.hiringwire.model.request.ProfileRequest;
+import com.hiringwire.model.response.ProfileResponse;
+import com.hiringwire.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.hiringwire.dto.ProfileDTO;
-import com.hiringwire.dto.UserDTO;
-import com.hiringwire.entity.Profile;
-import com.hiringwire.entity.User;
+import com.hiringwire.model.Profile;
+import com.hiringwire.model.User;
 import com.hiringwire.exception.HiringWireException;
-import com.hiringwire.repository.IProfileRepository;
+import com.hiringwire.repository.ProfileRepository;
 
 @Service("profileService")
+@RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
-
-	@Autowired
-	private IProfileRepository IProfileRepository;
-
-	@Autowired
-	private IUserRepository userRepository; // Add UserRepository
+	private final ProfileRepository IProfileRepository;
+	private final UserRepository userRepository;
+	private final ProfileMapper profileMapper;
 
 	@Override
-	public Long createProfile(UserDTO userDTO) throws HiringWireException {
-		Profile profile = new Profile();
-		profile.setEmail(userDTO.getEmail());
-		profile.setName(userDTO.getName());
+	public Long createProfile(ProfileRequest profileRequest) throws HiringWireException {
+		Profile profile = profileMapper.toEntity(profileRequest);
+		profile.setEmail(profile.getEmail());
+		profile.setName(profile.getName());
 		profile.setSkills(new ArrayList<>());
 		profile.setExperiences(new ArrayList<>());
 		profile.setCertifications(new ArrayList<>());
@@ -35,35 +34,52 @@ public class ProfileServiceImpl implements ProfileService {
 	}
 
 	@Override
-	public ProfileDTO getProfile(Long id) throws HiringWireException {
+	public ProfileResponse getProfile(Long id) throws HiringWireException {
 		Profile profile = IProfileRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("PROFILE_NOT_FOUND"));
-		ProfileDTO profileDTO = profile.toDTO();
+		ProfileResponse profileResponse = profileMapper.toResponse(profile);
 		// Fetch accountType from User
 		User user = userRepository.findByProfileId(id)
 				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND_FOR_PROFILE_ID: " + id));
-		profileDTO.setAccountType(user.getAccountType().name());
-		return profileDTO;
+		profileResponse.setAccountType(user.getAccountType().name());
+		return profileResponse;
 	}
 
 	@Override
-	public ProfileDTO updateProfile(ProfileDTO profileDTO) throws HiringWireException {
-		IProfileRepository.findById(profileDTO.getId())
+	public ProfileResponse updateProfile(ProfileRequest profileRequest) throws HiringWireException {
+		Long id = profileRequest.getId();
+		if (id == null) {
+			throw new HiringWireException("PROFILE_ID_REQUIRED");
+		}
+
+		Profile existing = IProfileRepository.findById(id)
 				.orElseThrow(() -> new HiringWireException("PROFILE_NOT_FOUND"));
-		IProfileRepository.save(profileDTO.toEntity());
-		return profileDTO;
+
+		Profile updated = profileMapper.toEntity(profileRequest);
+		updated.setId(existing.getId());
+
+		IProfileRepository.save(updated);
+
+		ProfileResponse response = profileMapper.toResponse(updated);
+
+		User user = userRepository.findByProfileId(updated.getId())
+				.orElseThrow(() -> new HiringWireException("USER_NOT_FOUND_FOR_PROFILE_ID: " + updated.getId()));
+
+		response.setAccountType(user.getAccountType().name());
+		return response;
 	}
 
+
 	@Override
-	public List<ProfileDTO> getAllProfiles() throws HiringWireException {
+	public List<ProfileResponse> getAllProfiles() throws HiringWireException {
 		try {
 			return IProfileRepository.findAll().stream().map(profile -> {
-				ProfileDTO profileDTO = profile.toDTO();
+				ProfileResponse response = profileMapper.toResponse(profile);
 				// Fetch accountType from User
 				userRepository.findByProfileId(profile.getId()).ifPresent(user ->
-						profileDTO.setAccountType(user.getAccountType().name())
+						response.setAccountType(user.getAccountType().name())
 				);
-				return profileDTO;
+				return response;
 			}).toList();
 		} catch (Exception e) {
 			throw new HiringWireException("Failed to fetch profiles: " + e.getMessage());
