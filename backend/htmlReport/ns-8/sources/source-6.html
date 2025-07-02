@@ -1,0 +1,132 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Job</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.model</a>
+</div>
+
+<h1>Coverage Summary for Class: Job (com.hiringwire.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">Job</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.model;
+&nbsp;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.hiringwire.model.enums.JobStatus;
+&nbsp;import jakarta.persistence.*;
+&nbsp;
+&nbsp;import lombok.AllArgsConstructor;
+&nbsp;import lombok.Data;
+&nbsp;import lombok.NoArgsConstructor;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Data
+&nbsp;@NoArgsConstructor
+&nbsp;@AllArgsConstructor
+&nbsp;@Table(name = &quot;jobs&quot;)
+&nbsp;public class Job {
+&nbsp;    @Id
+&nbsp;    @GeneratedValue(strategy = GenerationType.IDENTITY)
+&nbsp;    private Long id;
+&nbsp;    private String jobTitle;
+&nbsp;
+&nbsp;    private String company;
+&nbsp;
+&nbsp;    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+&nbsp;    @JoinColumn(name = &quot;job_id&quot;)
+&nbsp;    private List&lt;Applicant&gt; applicants;
+&nbsp;
+&nbsp;    private String about;
+&nbsp;    private String experience;
+&nbsp;    private String jobType;
+&nbsp;    private String location;
+&nbsp;    private Long salary;
+&nbsp;    private LocalDateTime postTime;
+&nbsp;    private String description;
+&nbsp;
+&nbsp;    @ElementCollection(fetch = FetchType.EAGER)
+&nbsp;    @CollectionTable(name = &quot;job_skills_required&quot;, joinColumns = @JoinColumn(name = &quot;job_id&quot;))
+&nbsp;    private List&lt;String&gt; skillsRequired;
+&nbsp;    @Enumerated(EnumType.STRING)
+&nbsp;    @Column(name = &quot;job_status&quot;)
+&nbsp;    private JobStatus jobStatus = JobStatus.PENDING;
+&nbsp;    private Long postedBy;
+&nbsp;
+&nbsp;//    public JobDTO toDTO() {
+&nbsp;//        return new JobDTO(
+&nbsp;//                this.id,
+&nbsp;//                this.jobTitle,
+&nbsp;//                this.company,
+&nbsp;//                this.applicants != null ? this.applicants.stream().map(Applicant::toDTO).toList() : null,
+&nbsp;//                this.about,
+&nbsp;//                this.experience,
+&nbsp;//                this.jobType,
+&nbsp;//                this.location,
+&nbsp;//                this.salary,
+&nbsp;//                this.postTime,
+&nbsp;//                this.description,
+&nbsp;//                this.skillsRequired,
+&nbsp;//                this.jobStatus,
+&nbsp;//                this.postedBy
+&nbsp;//        );
+&nbsp;//    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,174 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > NotificationMapperImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.mapper</a>
+</div>
+
+<h1>Coverage Summary for Class: NotificationMapperImpl (com.hiringwire.mapper)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NotificationMapperImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/31)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.mapper;
+&nbsp;
+&nbsp;import com.hiringwire.model.Notification;
+&nbsp;import com.hiringwire.model.User;
+&nbsp;import com.hiringwire.model.request.NotificationRequest;
+&nbsp;import com.hiringwire.model.response.NotificationResponse;
+&nbsp;import javax.annotation.processing.Generated;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;@Generated(
+&nbsp;    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+&nbsp;    date = &quot;2025-06-27T13:56:25+0700&quot;,
+&nbsp;    comments = &quot;version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)&quot;
+&nbsp;)
+&nbsp;@Component
+<b class="nc">&nbsp;public class NotificationMapperImpl implements NotificationMapper {</b>
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Notification toEntity(NotificationRequest request, User user) {
+<b class="nc">&nbsp;        if ( request == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Notification notification = new Notification();</b>
+&nbsp;
+<b class="nc">&nbsp;        notification.setMessage( request.getMessage() );</b>
+<b class="nc">&nbsp;        notification.setAction( request.getAction() );</b>
+<b class="nc">&nbsp;        notification.setRoute( request.getRoute() );</b>
+<b class="nc">&nbsp;        notification.setStatus( request.getStatus() );</b>
+<b class="nc">&nbsp;        notification.setTimestamp( request.getTimestamp() );</b>
+&nbsp;
+<b class="nc">&nbsp;        notification.setUser( user );</b>
+&nbsp;
+<b class="nc">&nbsp;        return notification;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public NotificationResponse toResponse(Notification notification) {
+<b class="nc">&nbsp;        if ( notification == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        NotificationResponse notificationResponse = new NotificationResponse();</b>
+&nbsp;
+<b class="nc">&nbsp;        notificationResponse.setUserId( notificationUserId( notification ) );</b>
+<b class="nc">&nbsp;        notificationResponse.setId( notification.getId() );</b>
+<b class="nc">&nbsp;        notificationResponse.setMessage( notification.getMessage() );</b>
+<b class="nc">&nbsp;        notificationResponse.setAction( notification.getAction() );</b>
+<b class="nc">&nbsp;        notificationResponse.setRoute( notification.getRoute() );</b>
+<b class="nc">&nbsp;        notificationResponse.setStatus( notification.getStatus() );</b>
+<b class="nc">&nbsp;        notificationResponse.setTimestamp( notification.getTimestamp() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return notificationResponse;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Long notificationUserId(Notification notification) {
+<b class="nc">&nbsp;        if ( notification == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        User user = notification.getUser();</b>
+<b class="nc">&nbsp;        if ( user == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Long id = user.getId();</b>
+<b class="nc">&nbsp;        if ( id == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return id;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

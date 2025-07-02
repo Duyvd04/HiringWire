@@ -1,0 +1,445 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > PdfGeneratorService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.service</a>
+</div>
+
+<h1>Coverage Summary for Class: PdfGeneratorService (com.hiringwire.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PdfGeneratorService</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/121)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.service;
+&nbsp;
+&nbsp;import com.itextpdf.kernel.colors.ColorConstants;
+&nbsp;import com.itextpdf.kernel.pdf.PdfDocument;
+&nbsp;import com.itextpdf.kernel.pdf.PdfWriter;
+&nbsp;import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+&nbsp;import com.itextpdf.layout.Document;
+&nbsp;import com.itextpdf.layout.borders.Border;
+&nbsp;import com.itextpdf.layout.element.*;
+&nbsp;import com.itextpdf.layout.properties.TextAlignment;
+&nbsp;import com.itextpdf.layout.properties.UnitValue;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.io.ByteArrayOutputStream;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;@Service
+<b class="nc">&nbsp;public class PdfGeneratorService {</b>
+&nbsp;
+&nbsp;    @SuppressWarnings(&quot;unchecked&quot;)
+&nbsp;    public byte[] generateExtractedPdf(Map&lt;String, Object&gt; parsedInfo) {
+<b class="nc">&nbsp;        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {</b>
+<b class="nc">&nbsp;            PdfWriter writer = new PdfWriter(baos);</b>
+<b class="nc">&nbsp;            PdfDocument pdf = new PdfDocument(writer);</b>
+<b class="nc">&nbsp;            Document document = new Document(pdf);</b>
+&nbsp;
+&nbsp;            // Set PDF metadata
+<b class="nc">&nbsp;            pdf.getDocumentInfo().setTitle(&quot;Extracted Resume Information&quot;);</b>
+<b class="nc">&nbsp;            pdf.getDocumentInfo().setAuthor(&quot;HiringWire Resume Parser&quot;);</b>
+<b class="nc">&nbsp;            pdf.getDocumentInfo().setCreator(&quot;HiringWire&quot;);</b>
+&nbsp;
+&nbsp;            // Add header
+<b class="nc">&nbsp;            Paragraph header = new Paragraph(&quot;Extracted Resume Information&quot;)</b>
+<b class="nc">&nbsp;                    .setFontSize(16)</b>
+<b class="nc">&nbsp;                    .setBold()</b>
+<b class="nc">&nbsp;                    .setTextAlignment(TextAlignment.CENTER)</b>
+<b class="nc">&nbsp;                    .setMarginBottom(20);</b>
+<b class="nc">&nbsp;            document.add(header);</b>
+&nbsp;
+&nbsp;            // Add name if present
+<b class="nc">&nbsp;            String name = (String) parsedInfo.getOrDefault(&quot;name&quot;, &quot;&quot;);</b>
+<b class="nc">&nbsp;            if (!name.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Candidate Name: &quot; + name)</b>
+<b class="nc">&nbsp;                        .setFontSize(12)</b>
+<b class="nc">&nbsp;                        .setBold()</b>
+<b class="nc">&nbsp;                        .setMarginBottom(10));</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add contact info section
+<b class="nc">&nbsp;            document.add(new Paragraph(&quot;Contact Information&quot;)</b>
+<b class="nc">&nbsp;                    .setFontSize(12)</b>
+<b class="nc">&nbsp;                    .setBold()</b>
+<b class="nc">&nbsp;                    .setMarginTop(10));</b>
+<b class="nc">&nbsp;            document.add(new Paragraph(&quot;Email: &quot; + parsedInfo.getOrDefault(&quot;email&quot;, &quot;Not found&quot;))</b>
+<b class="nc">&nbsp;                    .setFontSize(10));</b>
+<b class="nc">&nbsp;            document.add(new Paragraph(&quot;Phone: &quot; + parsedInfo.getOrDefault(&quot;phone&quot;, &quot;Not found&quot;))</b>
+<b class="nc">&nbsp;                    .setFontSize(10));</b>
+&nbsp;
+&nbsp;            // Add links
+<b class="nc">&nbsp;            List&lt;String&gt; links = (List&lt;String&gt;) parsedInfo.getOrDefault(&quot;links&quot;, List.of());</b>
+<b class="nc">&nbsp;            if (!links.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Links:&quot;)</b>
+<b class="nc">&nbsp;                        .setFontSize(10)</b>
+<b class="nc">&nbsp;                        .setMarginTop(5));</b>
+<b class="nc">&nbsp;                for (String link : links) {</b>
+<b class="nc">&nbsp;                    Link linkElement = new Link(link, new com.itextpdf.kernel.pdf.action.PdfAction());</b>
+<b class="nc">&nbsp;                    document.add(new Paragraph(&quot;• &quot;).add(linkElement)</b>
+<b class="nc">&nbsp;                            .setFontSize(10));</b>
+<b class="nc">&nbsp;                }</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add skills section (categorized)
+<b class="nc">&nbsp;            Map&lt;String, List&lt;String&gt;&gt; skills = (Map&lt;String, List&lt;String&gt;&gt;) parsedInfo.getOrDefault(&quot;skills&quot;, Map.of());</b>
+<b class="nc">&nbsp;            if (!skills.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Skills&quot;)</b>
+<b class="nc">&nbsp;                        .setFontSize(12)</b>
+<b class="nc">&nbsp;                        .setBold()</b>
+<b class="nc">&nbsp;                        .setMarginTop(20));</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Map.Entry&lt;String, List&lt;String&gt;&gt; category : skills.entrySet()) {</b>
+<b class="nc">&nbsp;                    document.add(new Paragraph(category.getKey() + &quot;:&quot;)</b>
+<b class="nc">&nbsp;                            .setFontSize(10)</b>
+<b class="nc">&nbsp;                            .setItalic()</b>
+<b class="nc">&nbsp;                            .setMarginLeft(10)</b>
+<b class="nc">&nbsp;                            .setMarginTop(5));</b>
+<b class="nc">&nbsp;                    for (String skill : category.getValue()) {</b>
+<b class="nc">&nbsp;                        document.add(new Paragraph(&quot;• &quot; + skill)</b>
+<b class="nc">&nbsp;                                .setFontSize(10)</b>
+<b class="nc">&nbsp;                                .setMarginLeft(20));</b>
+<b class="nc">&nbsp;                    }</b>
+<b class="nc">&nbsp;                }</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add education section
+<b class="nc">&nbsp;            List&lt;Map&lt;String, String&gt;&gt; education = (List&lt;Map&lt;String, String&gt;&gt;) parsedInfo.getOrDefault(&quot;education&quot;, List.of());</b>
+<b class="nc">&nbsp;            if (!education.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Education&quot;)</b>
+<b class="nc">&nbsp;                        .setFontSize(12)</b>
+<b class="nc">&nbsp;                        .setBold()</b>
+<b class="nc">&nbsp;                        .setMarginTop(20));</b>
+&nbsp;
+<b class="nc">&nbsp;                Table table = new Table(UnitValue.createPercentArray(new float[]{40, 40, 20}))</b>
+<b class="nc">&nbsp;                        .useAllAvailableWidth();</b>
+<b class="nc">&nbsp;                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Degree&quot;).setBold()));</b>
+<b class="nc">&nbsp;                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Institution&quot;).setBold()));</b>
+<b class="nc">&nbsp;                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Dates&quot;).setBold()));</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Map&lt;String, String&gt; edu : education) {</b>
+<b class="nc">&nbsp;                    table.addCell(new Cell().add(new Paragraph(edu.getOrDefault(&quot;degree&quot;, &quot;&quot;))));</b>
+<b class="nc">&nbsp;                    table.addCell(new Cell().add(new Paragraph(edu.getOrDefault(&quot;institution&quot;, &quot;&quot;))));</b>
+<b class="nc">&nbsp;                    table.addCell(new Cell().add(new Paragraph(edu.getOrDefault(&quot;dates&quot;, &quot;&quot;))));</b>
+<b class="nc">&nbsp;                }</b>
+<b class="nc">&nbsp;                document.add(table);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add experience section
+<b class="nc">&nbsp;            List&lt;Map&lt;String, String&gt;&gt; experience = (List&lt;Map&lt;String, String&gt;&gt;) parsedInfo.getOrDefault(&quot;experience&quot;, List.of());</b>
+<b class="nc">&nbsp;            if (!experience.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Experience&quot;)</b>
+<b class="nc">&nbsp;                        .setFontSize(12)</b>
+<b class="nc">&nbsp;                        .setBold()</b>
+<b class="nc">&nbsp;                        .setMarginTop(20));</b>
+&nbsp;
+<b class="nc">&nbsp;                Table table = new Table(UnitValue.createPercentArray(new float[]{30, 40, 30}))</b>
+<b class="nc">&nbsp;                        .useAllAvailableWidth();</b>
+<b class="nc">&nbsp;                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Title&quot;).setBold()));</b>
+<b class="nc">&nbsp;                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Company&quot;).setBold()));</b>
+<b class="nc">&nbsp;                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Dates&quot;).setBold()));</b>
+&nbsp;
+<b class="nc">&nbsp;                for (Map&lt;String, String&gt; exp : experience) {</b>
+<b class="nc">&nbsp;                    table.addCell(new Cell().add(new Paragraph(exp.getOrDefault(&quot;title&quot;, &quot;&quot;))));</b>
+<b class="nc">&nbsp;                    table.addCell(new Cell().add(new Paragraph(exp.getOrDefault(&quot;company&quot;, &quot;&quot;))));</b>
+<b class="nc">&nbsp;                    table.addCell(new Cell().add(new Paragraph(exp.getOrDefault(&quot;dates&quot;, &quot;&quot;))));</b>
+<b class="nc">&nbsp;                }</b>
+<b class="nc">&nbsp;                document.add(table);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add certifications
+<b class="nc">&nbsp;            List&lt;String&gt; certifications = (List&lt;String&gt;) parsedInfo.getOrDefault(&quot;certifications&quot;, List.of());</b>
+<b class="nc">&nbsp;            if (!certifications.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Certifications&quot;)</b>
+<b class="nc">&nbsp;                        .setFontSize(12)</b>
+<b class="nc">&nbsp;                        .setBold()</b>
+<b class="nc">&nbsp;                        .setMarginTop(20));</b>
+<b class="nc">&nbsp;                for (String cert : certifications) {</b>
+<b class="nc">&nbsp;                    document.add(new Paragraph(&quot;• &quot; + cert)</b>
+<b class="nc">&nbsp;                            .setFontSize(10));</b>
+<b class="nc">&nbsp;                }</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add languages
+<b class="nc">&nbsp;            List&lt;String&gt; languages = (List&lt;String&gt;) parsedInfo.getOrDefault(&quot;languages&quot;, List.of());</b>
+<b class="nc">&nbsp;            if (!languages.isEmpty()) {</b>
+<b class="nc">&nbsp;                document.add(new Paragraph(&quot;Languages&quot;)</b>
+<b class="nc">&nbsp;                        .setFontSize(12)</b>
+<b class="nc">&nbsp;                        .setBold()</b>
+<b class="nc">&nbsp;                        .setMarginTop(20));</b>
+<b class="nc">&nbsp;                for (String lang : languages) {</b>
+<b class="nc">&nbsp;                    document.add(new Paragraph(&quot;• &quot; + lang)</b>
+<b class="nc">&nbsp;                            .setFontSize(10));</b>
+<b class="nc">&nbsp;                }</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Add footer
+<b class="nc">&nbsp;            PdfCanvas canvas = new PdfCanvas(pdf.getLastPage());</b>
+<b class="nc">&nbsp;            canvas.beginText()</b>
+<b class="nc">&nbsp;                    .setFontAndSize(com.itextpdf.kernel.font.PdfFontFactory.createFont(), 8)</b>
+<b class="nc">&nbsp;                    .moveText(36, 20)</b>
+<b class="nc">&nbsp;                    .showText(&quot;Generated by HiringWire Resume Parser&quot;)</b>
+<b class="nc">&nbsp;                    .endText();</b>
+&nbsp;
+<b class="nc">&nbsp;            document.close();</b>
+<b class="nc">&nbsp;            return baos.toByteArray();</b>
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+<b class="nc">&nbsp;            return new byte[0];</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+&nbsp;//package com.hiringwire.service;
+&nbsp;//
+&nbsp;//import com.itextpdf.kernel.colors.ColorConstants;
+&nbsp;//import com.itextpdf.kernel.pdf.PdfDocument;
+&nbsp;//import com.itextpdf.kernel.pdf.PdfWriter;
+&nbsp;//import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+&nbsp;//import com.itextpdf.layout.Document;
+&nbsp;//import com.itextpdf.layout.element.*;
+&nbsp;//import com.itextpdf.layout.properties.TextAlignment;
+&nbsp;//import com.itextpdf.layout.properties.UnitValue;
+&nbsp;//import org.springframework.stereotype.Service;
+&nbsp;//
+&nbsp;//import java.io.ByteArrayOutputStream;
+&nbsp;//import java.util.List;
+&nbsp;//import java.util.Map;
+&nbsp;//
+&nbsp;//@Service
+&nbsp;//public class PdfGeneratorService {
+&nbsp;//
+&nbsp;//    @SuppressWarnings(&quot;unchecked&quot;)
+&nbsp;//    public byte[] generateExtractedPdf(Map&lt;String, Object&gt; parsedInfo) {
+&nbsp;//        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+&nbsp;//            PdfWriter writer = new PdfWriter(baos);
+&nbsp;//            PdfDocument pdf = new PdfDocument(writer);
+&nbsp;//            Document document = new Document(pdf);
+&nbsp;//
+&nbsp;//            pdf.getDocumentInfo().setTitle(&quot;Extracted Resume Information&quot;);
+&nbsp;//            pdf.getDocumentInfo().setAuthor(&quot;HiringWire Resume Parser&quot;);
+&nbsp;//            pdf.getDocumentInfo().setCreator(&quot;HiringWire&quot;);
+&nbsp;//
+&nbsp;//            document.add(new Paragraph(&quot;Extracted Resume Information&quot;)
+&nbsp;//                    .setFontSize(16)
+&nbsp;//                    .setBold()
+&nbsp;//                    .setTextAlignment(TextAlignment.CENTER)
+&nbsp;//                    .setMarginBottom(20));
+&nbsp;//
+&nbsp;//            String name = (String) parsedInfo.getOrDefault(&quot;name&quot;, &quot;&quot;);
+&nbsp;//            if (!name.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Candidate Name: &quot; + name)
+&nbsp;//                        .setFontSize(12)
+&nbsp;//                        .setBold()
+&nbsp;//                        .setMarginBottom(10));
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            document.add(new Paragraph(&quot;Contact Information&quot;)
+&nbsp;//                    .setFontSize(12)
+&nbsp;//                    .setBold()
+&nbsp;//                    .setMarginTop(10));
+&nbsp;//            document.add(new Paragraph(&quot;Email: &quot; + parsedInfo.getOrDefault(&quot;email&quot;, &quot;Not found&quot;))
+&nbsp;//                    .setFontSize(10));
+&nbsp;//            document.add(new Paragraph(&quot;Phone: &quot; + parsedInfo.getOrDefault(&quot;phone&quot;, &quot;Not found&quot;))
+&nbsp;//                    .setFontSize(10));
+&nbsp;//
+&nbsp;//            List&lt;String&gt; links = (List&lt;String&gt;) parsedInfo.getOrDefault(&quot;links&quot;, List.of());
+&nbsp;//            if (!links.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Links:&quot;)
+&nbsp;//                        .setFontSize(10)
+&nbsp;//                        .setMarginTop(5));
+&nbsp;//                for (String link : links) {
+&nbsp;//                    document.add(new Paragraph(&quot;• &quot; + link)
+&nbsp;//                            .setFontSize(10));
+&nbsp;//                }
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            Map&lt;String, List&lt;String&gt;&gt; skills = (Map&lt;String, List&lt;String&gt;&gt;) parsedInfo.getOrDefault(&quot;skills&quot;, Map.of());
+&nbsp;//            if (!skills.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Skills&quot;)
+&nbsp;//                        .setFontSize(12)
+&nbsp;//                        .setBold()
+&nbsp;//                        .setMarginTop(20));
+&nbsp;//                for (Map.Entry&lt;String, List&lt;String&gt;&gt; category : skills.entrySet()) {
+&nbsp;//                    document.add(new Paragraph(category.getKey() + &quot;:&quot;)
+&nbsp;//                            .setFontSize(10)
+&nbsp;//                            .setItalic()
+&nbsp;//                            .setMarginLeft(10)
+&nbsp;//                            .setMarginTop(5));
+&nbsp;//                    for (String skill : category.getValue()) {
+&nbsp;//                        document.add(new Paragraph(&quot;• &quot; + skill)
+&nbsp;//                                .setFontSize(10)
+&nbsp;//                                .setMarginLeft(20));
+&nbsp;//                    }
+&nbsp;//                }
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            List&lt;Map&lt;String, String&gt;&gt; education = (List&lt;Map&lt;String, String&gt;&gt;) parsedInfo.getOrDefault(&quot;education&quot;, List.of());
+&nbsp;//            if (!education.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Education&quot;)
+&nbsp;//                        .setFontSize(12)
+&nbsp;//                        .setBold()
+&nbsp;//                        .setMarginTop(20));
+&nbsp;//                Table table = new Table(UnitValue.createPercentArray(new float[]{40, 40, 20}))
+&nbsp;//                        .useAllAvailableWidth();
+&nbsp;//                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Degree&quot;).setBold()));
+&nbsp;//                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Institution&quot;).setBold()));
+&nbsp;//                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Dates&quot;).setBold()));
+&nbsp;//                for (Map&lt;String, String&gt; edu : education) {
+&nbsp;//                    table.addCell(new Cell().add(new Paragraph(edu.getOrDefault(&quot;degree&quot;, &quot;&quot;))));
+&nbsp;//                    table.addCell(new Cell().add(new Paragraph(edu.getOrDefault(&quot;institution&quot;, &quot;&quot;))));
+&nbsp;//                    table.addCell(new Cell().add(new Paragraph(edu.getOrDefault(&quot;dates&quot;, &quot;&quot;))));
+&nbsp;//                }
+&nbsp;//                document.add(table);
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            List&lt;Map&lt;String, String&gt;&gt; experience = (List&lt;Map&lt;String, String&gt;&gt;) parsedInfo.getOrDefault(&quot;experience&quot;, List.of());
+&nbsp;//            if (!experience.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Experience&quot;)
+&nbsp;//                        .setFontSize(12)
+&nbsp;//                        .setBold()
+&nbsp;//                        .setMarginTop(20));
+&nbsp;//                Table table = new Table(UnitValue.createPercentArray(new float[]{30, 40, 30}))
+&nbsp;//                        .useAllAvailableWidth();
+&nbsp;//                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Title&quot;).setBold()));
+&nbsp;//                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Company&quot;).setBold()));
+&nbsp;//                table.addHeaderCell(new Cell().add(new Paragraph(&quot;Dates&quot;).setBold()));
+&nbsp;//                for (Map&lt;String, String&gt; exp : experience) {
+&nbsp;//                    table.addCell(new Cell().add(new Paragraph(exp.getOrDefault(&quot;title&quot;, &quot;&quot;))));
+&nbsp;//                    table.addCell(new Cell().add(new Paragraph(exp.getOrDefault(&quot;company&quot;, &quot;&quot;))));
+&nbsp;//                    table.addCell(new Cell().add(new Paragraph(exp.getOrDefault(&quot;dates&quot;, &quot;&quot;))));
+&nbsp;//                }
+&nbsp;//                document.add(table);
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            List&lt;String&gt; certifications = (List&lt;String&gt;) parsedInfo.getOrDefault(&quot;certifications&quot;, List.of());
+&nbsp;//            if (!certifications.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Certifications&quot;)
+&nbsp;//                        .setFontSize(12)
+&nbsp;//                        .setBold()
+&nbsp;//                        .setMarginTop(20));
+&nbsp;//                for (String cert : certifications) {
+&nbsp;//                    document.add(new Paragraph(&quot;• &quot; + cert)
+&nbsp;//                            .setFontSize(10));
+&nbsp;//                }
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            List&lt;String&gt; languages = (List&lt;String&gt;) parsedInfo.getOrDefault(&quot;languages&quot;, List.of());
+&nbsp;//            if (!languages.isEmpty()) {
+&nbsp;//                document.add(new Paragraph(&quot;Languages&quot;)
+&nbsp;//                        .setFontSize(12)
+&nbsp;//                        .setBold()
+&nbsp;//                        .setMarginTop(20));
+&nbsp;//                for (String lang : languages) {
+&nbsp;//                    document.add(new Paragraph(&quot;• &quot; + lang)
+&nbsp;//                            .setFontSize(10));
+&nbsp;//                }
+&nbsp;//            }
+&nbsp;//
+&nbsp;//            PdfCanvas canvas = new PdfCanvas(pdf.getLastPage());
+&nbsp;//            canvas.beginText()
+&nbsp;//                    .setFontAndSize(com.itextpdf.kernel.font.PdfFontFactory.createFont(), 8)
+&nbsp;//                    .moveText(36, 20)
+&nbsp;//                    .showText(&quot;Generated by HiringWire Resume Parser&quot;)
+&nbsp;//                    .endText();
+&nbsp;//
+&nbsp;//            document.close();
+&nbsp;//            return baos.toByteArray();
+&nbsp;//        } catch (Exception e) {
+&nbsp;//            e.printStackTrace();
+&nbsp;//            return new byte[0];
+&nbsp;//        }
+&nbsp;//    }
+&nbsp;//}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

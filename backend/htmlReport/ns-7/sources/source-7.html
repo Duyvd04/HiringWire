@@ -1,0 +1,171 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > UserMapperImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.mapper</a>
+</div>
+
+<h1>Coverage Summary for Class: UserMapperImpl (com.hiringwire.mapper)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserMapperImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/29)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.mapper;
+&nbsp;
+&nbsp;import com.hiringwire.model.Profile;
+&nbsp;import com.hiringwire.model.User;
+&nbsp;import com.hiringwire.model.request.UserRequest;
+&nbsp;import com.hiringwire.model.response.UserResponse;
+&nbsp;import javax.annotation.processing.Generated;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;@Generated(
+&nbsp;    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+&nbsp;    date = &quot;2025-06-27T13:56:25+0700&quot;,
+&nbsp;    comments = &quot;version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)&quot;
+&nbsp;)
+&nbsp;@Component
+<b class="nc">&nbsp;public class UserMapperImpl implements UserMapper {</b>
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public User toEntity(UserRequest request) {
+<b class="nc">&nbsp;        if ( request == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        User user = new User();</b>
+&nbsp;
+<b class="nc">&nbsp;        user.setName( request.getName() );</b>
+<b class="nc">&nbsp;        user.setEmail( request.getEmail() );</b>
+<b class="nc">&nbsp;        user.setPassword( request.getPassword() );</b>
+<b class="nc">&nbsp;        user.setAccountType( request.getAccountType() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return user;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public UserResponse toResponse(User user) {
+<b class="nc">&nbsp;        if ( user == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        UserResponse userResponse = new UserResponse();</b>
+&nbsp;
+<b class="nc">&nbsp;        userResponse.setProfileId( userProfileId( user ) );</b>
+<b class="nc">&nbsp;        userResponse.setId( user.getId() );</b>
+<b class="nc">&nbsp;        userResponse.setName( user.getName() );</b>
+<b class="nc">&nbsp;        userResponse.setEmail( user.getEmail() );</b>
+<b class="nc">&nbsp;        userResponse.setAccountType( user.getAccountType() );</b>
+<b class="nc">&nbsp;        userResponse.setAccountStatus( user.getAccountStatus() );</b>
+<b class="nc">&nbsp;        userResponse.setLastLoginDate( user.getLastLoginDate() );</b>
+&nbsp;
+<b class="nc">&nbsp;        return userResponse;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Long userProfileId(User user) {
+<b class="nc">&nbsp;        if ( user == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Profile profile = user.getProfile();</b>
+<b class="nc">&nbsp;        if ( profile == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Long id = profile.getId();</b>
+<b class="nc">&nbsp;        if ( id == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return id;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

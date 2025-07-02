@@ -1,0 +1,143 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > NotificationController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.api</a>
+</div>
+
+<h1>Coverage Summary for Class: NotificationController (com.hiringwire.api)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NotificationController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.api;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.hiringwire.model.response.NotificationResponse;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.validation.annotation.Validated;
+&nbsp;import org.springframework.web.bind.annotation.CrossOrigin;
+&nbsp;import org.springframework.web.bind.annotation.GetMapping;
+&nbsp;import org.springframework.web.bind.annotation.PathVariable;
+&nbsp;import org.springframework.web.bind.annotation.PutMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+&nbsp;import org.springframework.web.bind.annotation.RestController;
+&nbsp;
+&nbsp;import com.hiringwire.dto.ResponseDTO;
+&nbsp;import com.hiringwire.model.Notification;
+&nbsp;import com.hiringwire.exception.HiringWireException;
+&nbsp;import com.hiringwire.service.NotificationService;
+&nbsp;
+&nbsp;@RestController
+&nbsp;@CrossOrigin
+&nbsp;@RequestMapping(&quot;/notification&quot;)
+&nbsp;@Validated
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class NotificationController {
+&nbsp;	private final NotificationService notificationService;
+&nbsp;
+&nbsp;	@GetMapping(&quot;/get/{userId}&quot;)
+&nbsp;	public ResponseEntity&lt;List&lt;NotificationResponse&gt;&gt;getNotifications(@PathVariable Long userId){
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(notificationService.getUnreadNotifications(userId), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;	@PutMapping(&quot;/read/{id}&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt;readNotification(@PathVariable Long id) throws HiringWireException {
+<b class="nc">&nbsp;		notificationService.readNotification(id);</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(new ResponseDTO(&quot;Success&quot;), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

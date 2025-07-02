@@ -1,0 +1,192 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > ProfileServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.service</a>
+</div>
+
+<h1>Coverage Summary for Class: ProfileServiceImpl (com.hiringwire.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ProfileServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/36)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.service;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.hiringwire.mapper.ProfileMapper;
+&nbsp;import com.hiringwire.model.request.ProfileRequest;
+&nbsp;import com.hiringwire.model.response.ProfileResponse;
+&nbsp;import com.hiringwire.repository.UserRepository;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import com.hiringwire.model.Profile;
+&nbsp;import com.hiringwire.model.User;
+&nbsp;import com.hiringwire.exception.HiringWireException;
+&nbsp;import com.hiringwire.repository.ProfileRepository;
+&nbsp;
+&nbsp;@Service(&quot;profileService&quot;)
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class ProfileServiceImpl implements ProfileService {
+&nbsp;	private final ProfileRepository IProfileRepository;
+&nbsp;	private final UserRepository userRepository;
+&nbsp;	private final ProfileMapper profileMapper;
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Long createProfile(ProfileRequest profileRequest) throws HiringWireException {
+<b class="nc">&nbsp;		Profile profile = profileMapper.toEntity(profileRequest);</b>
+<b class="nc">&nbsp;		profile.setEmail(profile.getEmail());</b>
+<b class="nc">&nbsp;		profile.setName(profile.getName());</b>
+<b class="nc">&nbsp;		profile.setSkills(new ArrayList&lt;&gt;());</b>
+<b class="nc">&nbsp;		profile.setExperiences(new ArrayList&lt;&gt;());</b>
+<b class="nc">&nbsp;		profile.setCertifications(new ArrayList&lt;&gt;());</b>
+<b class="nc">&nbsp;		Profile savedProfile = IProfileRepository.save(profile);</b>
+<b class="nc">&nbsp;		return savedProfile.getId();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ProfileResponse getProfile(Long id) throws HiringWireException {
+<b class="nc">&nbsp;		Profile profile = IProfileRepository.findById(id)</b>
+<b class="nc">&nbsp;				.orElseThrow(() -&gt; new HiringWireException(&quot;PROFILE_NOT_FOUND&quot;));</b>
+<b class="nc">&nbsp;		ProfileResponse profileResponse = profileMapper.toResponse(profile);</b>
+&nbsp;		// Fetch accountType from User
+<b class="nc">&nbsp;		User user = userRepository.findByProfileId(id)</b>
+<b class="nc">&nbsp;				.orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND_FOR_PROFILE_ID: &quot; + id));</b>
+<b class="nc">&nbsp;		profileResponse.setAccountType(user.getAccountType().name());</b>
+<b class="nc">&nbsp;		return profileResponse;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ProfileResponse updateProfile(ProfileRequest profileRequest) throws HiringWireException {
+<b class="nc">&nbsp;		Long id = profileRequest.getId();</b>
+<b class="nc">&nbsp;		if (id == null) {</b>
+<b class="nc">&nbsp;			throw new HiringWireException(&quot;PROFILE_ID_REQUIRED&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Profile existing = IProfileRepository.findById(id)</b>
+<b class="nc">&nbsp;				.orElseThrow(() -&gt; new HiringWireException(&quot;PROFILE_NOT_FOUND&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;		Profile updated = profileMapper.toEntity(profileRequest);</b>
+<b class="nc">&nbsp;		updated.setId(existing.getId());</b>
+&nbsp;
+<b class="nc">&nbsp;		IProfileRepository.save(updated);</b>
+&nbsp;
+<b class="nc">&nbsp;		ProfileResponse response = profileMapper.toResponse(updated);</b>
+&nbsp;
+<b class="nc">&nbsp;		User user = userRepository.findByProfileId(updated.getId())</b>
+<b class="nc">&nbsp;				.orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND_FOR_PROFILE_ID: &quot; + updated.getId()));</b>
+&nbsp;
+<b class="nc">&nbsp;		response.setAccountType(user.getAccountType().name());</b>
+<b class="nc">&nbsp;		return response;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public List&lt;ProfileResponse&gt; getAllProfiles() throws HiringWireException {
+&nbsp;		try {
+<b class="nc">&nbsp;			return IProfileRepository.findAll().stream().map(profile -&gt; {</b>
+<b class="nc">&nbsp;				ProfileResponse response = profileMapper.toResponse(profile);</b>
+&nbsp;				// Fetch accountType from User
+<b class="nc">&nbsp;				userRepository.findByProfileId(profile.getId()).ifPresent(user -&gt;</b>
+<b class="nc">&nbsp;						response.setAccountType(user.getAccountType().name())</b>
+&nbsp;				);
+<b class="nc">&nbsp;				return response;</b>
+<b class="nc">&nbsp;			}).toList();</b>
+<b class="nc">&nbsp;		} catch (Exception e) {</b>
+<b class="nc">&nbsp;			throw new HiringWireException(&quot;Failed to fetch profiles: &quot; + e.getMessage());</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

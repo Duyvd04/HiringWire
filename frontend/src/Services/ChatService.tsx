@@ -25,6 +25,7 @@ export const connectWebSocket = (
         return;
     }
 
+    console.log('JWT Token:', token);
     const socket = new SockJS('http://localhost:8080/chat');
     stompClient = new Client({
         webSocketFactory: () => socket,
@@ -33,15 +34,14 @@ export const connectWebSocket = (
         onConnect: () => {
             console.log('WebSocket Connected for User:', userId, 'Recipient:', recipientId);
             reconnectAttempts = 0;
-            stompClient?.subscribe(`/topic/chat/${userId}/${recipientId}`, (message) => {
+            stompClient?.subscribe(`/topic/chat/${recipientId}/${userId}`, (message) => {
                 console.log('Message Received:', message.body);
                 const receivedMessage = JSON.parse(message.body);
-                onMessageReceived(receivedMessage);
-            });
-            stompClient?.subscribe(`/topic/chat/${recipientId}/${userId}`, (message) => {
-                console.log('Message Received (Reverse):', message.body);
-                const receivedMessage = JSON.parse(message.body);
-                onMessageReceived(receivedMessage);
+                if (receivedMessage.senderId !== userId) {
+                    onMessageReceived(receivedMessage);
+                } else {
+                    console.log('Ignoring own message:', receivedMessage);
+                }
             });
             successNotification('Chat Connected', 'You are now connected to the chat.');
         },
@@ -116,6 +116,7 @@ export const getChatHistory = async (userId: number, recipientId: number) => {
 export const getUsersForChat = async (userId: number, accountType: string) => {
     try {
         const response = await axiosInstance.get(`/users/chat/users/${userId}/${accountType}`);
+        console.log('Users for Chat:', response.data);
         return response.data;
     } catch (error: any) {
         console.error('getUsersForChat Error:', error.message, error.config);

@@ -1,0 +1,140 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Data</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.utility</a>
+</div>
+
+<h1>Coverage Summary for Class: Data (com.hiringwire.utility)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Data</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.utility;
+&nbsp;
+&nbsp;import java.time.Year;
+&nbsp;
+<b class="nc">&nbsp;public class Data {</b>
+&nbsp;	public static String getMessageBody(String otp, String name) {
+&nbsp;
+<b class="nc">&nbsp;		return &quot;&lt;!DOCTYPE html&gt;\n&quot; + &quot;&lt;html lang=\&quot;en\&quot;&gt;\n&quot; + &quot;&lt;head&gt;\n&quot; + &quot;    &lt;meta charset=\&quot;UTF-8\&quot;&gt;\n&quot;</b>
+&nbsp;				+ &quot;    &lt;meta name=\&quot;viewport\&quot; content=\&quot;width=device-width, initial-scale=1.0\&quot;&gt;\n&quot;
+&nbsp;				+ &quot;    &lt;title&gt;Your OTP Code&lt;/title&gt;\n&quot; + &quot;    &lt;style&gt;\n&quot; + &quot;        body {\n&quot;
+&nbsp;				+ &quot;            font-family: Arial, sans-serif;\n&quot; + &quot;            margin: 0;\n&quot;
+&nbsp;				+ &quot;            padding: 0;\n&quot; + &quot;            background-color: #f4f4f4;\n&quot; + &quot;        }\n&quot;
+&nbsp;				+ &quot;        .container {\n&quot; + &quot;            max-width: 600px;\n&quot; + &quot;            margin: 0 auto;\n&quot;
+&nbsp;				+ &quot;            padding: 20px;\n&quot; + &quot;            background-color: #ffffff;\n&quot;
+&nbsp;				+ &quot;            border-radius: 8px;\n&quot; + &quot;            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);\n&quot;
+&nbsp;				+ &quot;        }\n&quot; + &quot;        .header {\n&quot; + &quot;            background-color: #4CAF50;\n&quot;
+&nbsp;				+ &quot;            color: #ffffff;\n&quot; + &quot;            padding: 10px;\n&quot; + &quot;            text-align: center;\n&quot;
+&nbsp;				+ &quot;            border-radius: 8px 8px 0 0;\n&quot; + &quot;        }\n&quot; + &quot;        .body {\n&quot;
+&nbsp;				+ &quot;            padding: 20px;\n&quot; + &quot;            color: #333333;\n&quot; + &quot;            text-align: center;\n&quot;
+&nbsp;				+ &quot;        }\n&quot; + &quot;        .otp {\n&quot; + &quot;            font-size: 24px;\n&quot;
+&nbsp;				+ &quot;            font-weight: bold;\n&quot; + &quot;            color: #4CAF50;\n&quot; + &quot;            margin: 20px 0;\n&quot;
+&nbsp;				+ &quot;        }\n&quot; + &quot;        .footer {\n&quot; + &quot;            margin-top: 20px;\n&quot;
+&nbsp;				+ &quot;            font-size: 12px;\n&quot; + &quot;            color: #888888;\n&quot;
+&nbsp;				+ &quot;            text-align: center;\n&quot; + &quot;        }\n&quot; + &quot;    &lt;/style&gt;\n&quot; + &quot;&lt;/head&gt;\n&quot; + &quot;&lt;body&gt;\n&quot;
+&nbsp;				+ &quot;    &lt;div class=\&quot;container\&quot;&gt;\n&quot; + &quot;        &lt;div class=\&quot;header\&quot;&gt;\n&quot;
+&nbsp;				+ &quot;            &lt;h1&gt;Your OTP Code&lt;/h1&gt;\n&quot; + &quot;        &lt;/div&gt;\n&quot; + &quot;        &lt;div class=\&quot;body\&quot;&gt;\n&quot;
+&nbsp;				+ &quot;            &lt;p&gt;Hello &lt;strong&gt;&quot;+name+&quot;&lt;/strong&gt;,&lt;/p&gt;\n&quot;
+&nbsp;				+ &quot;            &lt;p&gt;We have received a request to verify your email address. Your OTP code is:&lt;/p&gt;\n&quot;
+&nbsp;				+ &quot;            &lt;div class=\&quot;otp\&quot;&gt;&quot; + otp + &quot;&lt;/div&gt;\n&quot;
+&nbsp;				+ &quot;            &lt;p&gt;This OTP code is valid for 5 minutes. If you did not request this, please ignore this email.&lt;/p&gt;\n&quot;
+&nbsp;				+ &quot;            &lt;p&gt;Thank you for using our service!&lt;/p&gt;\n&quot; + &quot;        &lt;/div&gt;\n&quot;
+<b class="nc">&nbsp;				+ &quot;        &lt;div class=\&quot;footer\&quot;&gt;\n&quot; + &quot;            &lt;p&gt;&amp;copy;&quot; + Year.now().getValue()</b>
+&nbsp;				+ &quot; JobHook . All rights reserved.&lt;/p&gt;\n&quot; + &quot;        &lt;/div&gt;\n&quot; + &quot;    &lt;/div&gt;\n&quot; + &quot;&lt;/body&gt;\n&quot;
+&nbsp;				+ &quot;&lt;/html&gt;&quot;;
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

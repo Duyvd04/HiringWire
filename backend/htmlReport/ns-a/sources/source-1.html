@@ -1,0 +1,182 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > AdminServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.service</a>
+</div>
+
+<h1>Coverage Summary for Class: AdminServiceImpl (com.hiringwire.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AdminServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/23)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.service;
+&nbsp;
+&nbsp;import com.hiringwire.dto.*;
+&nbsp;import com.hiringwire.model.enums.AccountStatus;
+&nbsp;import com.hiringwire.model.enums.AccountType;
+&nbsp;import com.hiringwire.model.User;
+&nbsp;import com.hiringwire.exception.HiringWireException;
+&nbsp;import com.hiringwire.model.request.NotificationRequest;
+&nbsp;import com.hiringwire.model.response.NotificationResponse;
+&nbsp;import com.hiringwire.repository.UserRepository;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;@Service
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class AdminServiceImpl implements AdminService {
+&nbsp;    private final UserRepository userRepository;
+&nbsp;    private final NotificationService notificationService;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;User&gt; getPendingEmployers() {
+<b class="nc">&nbsp;        return userRepository.findAll().stream()</b>
+<b class="nc">&nbsp;                .filter(user -&gt; user.getAccountType() == AccountType.EMPLOYER</b>
+<b class="nc">&nbsp;                        &amp;&amp; user.getAccountStatus() == AccountStatus.PENDING_APPROVAL)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toList());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public void approveEmployer(Long id) throws HiringWireException {
+<b class="nc">&nbsp;        User user = userRepository.findById(id)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (user.getAccountType() != AccountType.EMPLOYER) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;USER_NOT_EMPLOYER&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        user.setAccountStatus(AccountStatus.ACTIVE);</b>
+<b class="nc">&nbsp;        userRepository.save(user);</b>
+&nbsp;
+&nbsp;        // Send notification
+<b class="nc">&nbsp;        notificationService.sendNotification(createNotification(user.getId(),</b>
+&nbsp;                &quot;Account Approved&quot;,
+&nbsp;                &quot;Your employer account has been approved. You can now login and post jobs.&quot;));
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public void rejectEmployer(Long id) throws HiringWireException {
+<b class="nc">&nbsp;        User user = userRepository.findById(id)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (user.getAccountType() != AccountType.EMPLOYER) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;USER_NOT_EMPLOYER&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        user.setAccountStatus(AccountStatus.REJECTED);</b>
+<b class="nc">&nbsp;        userRepository.save(user);</b>
+&nbsp;
+&nbsp;        // Send notification
+<b class="nc">&nbsp;        notificationService.sendNotification(createNotification(user.getId(),</b>
+&nbsp;                &quot;Account Rejected&quot;,
+&nbsp;                &quot;Your employer account has been rejected. Please contact support for more information.&quot;));
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private NotificationRequest createNotification(Long userId, String action, String message) {
+<b class="nc">&nbsp;        NotificationRequest notification = new NotificationRequest();</b>
+<b class="nc">&nbsp;        notification.setUserId(userId);</b>
+<b class="nc">&nbsp;        notification.setAction(action);</b>
+<b class="nc">&nbsp;        notification.setMessage(message);</b>
+<b class="nc">&nbsp;        return notification;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

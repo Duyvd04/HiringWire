@@ -1,0 +1,88 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > JobRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: JobRepository (com.hiringwire.repository)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">JobRepository</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.repository;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.hiringwire.model.enums.JobStatus;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;
+&nbsp;import com.hiringwire.model.ApplicationStatus;
+&nbsp;import com.hiringwire.model.Job;
+&nbsp;
+&nbsp;public interface JobRepository extends JpaRepository&lt;Job, Long&gt; {
+&nbsp;	@Query(&quot;SELECT j FROM Job j JOIN j.applicants a WHERE a.user.id = :applicantId AND a.applicationStatus = :status&quot;)
+&nbsp;	List&lt;Job&gt; findByApplicantIdAndApplicationStatus(@Param(&quot;applicantId&quot;) Long applicantId,
+&nbsp;													@Param(&quot;status&quot;) ApplicationStatus applicationStatus);
+&nbsp;
+&nbsp;	List&lt;Job&gt; findByPostedBy(Long postedBy);
+&nbsp;	List&lt;Job&gt; findByJobStatus(JobStatus jobStatus);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

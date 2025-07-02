@@ -1,0 +1,385 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > UserServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.service</a>
+</div>
+
+<h1>Coverage Summary for Class: UserServiceImpl (com.hiringwire.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/127)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.service;
+&nbsp;
+&nbsp;import com.hiringwire.dto.*;
+&nbsp;import com.hiringwire.mapper.UserMapper;
+&nbsp;import com.hiringwire.model.*;
+&nbsp;import com.hiringwire.exception.HiringWireException;
+&nbsp;import com.hiringwire.model.enums.AccountStatus;
+&nbsp;import com.hiringwire.model.enums.AccountType;
+&nbsp;import com.hiringwire.model.request.LoginRequest;
+&nbsp;import com.hiringwire.model.request.NotificationRequest;
+&nbsp;import com.hiringwire.model.request.UserRequest;
+&nbsp;import com.hiringwire.model.response.UserResponse;
+&nbsp;import com.hiringwire.repository.OTPRepository;
+&nbsp;import com.hiringwire.repository.UserRepository;
+&nbsp;import com.hiringwire.utility.Data;
+&nbsp;import com.hiringwire.utility.Utilities;
+&nbsp;import jakarta.mail.internet.MimeMessage;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.mail.javamail.JavaMailSender;
+&nbsp;import org.springframework.mail.javamail.MimeMessageHelper;
+&nbsp;import org.springframework.scheduling.annotation.Scheduled;
+&nbsp;import org.springframework.security.crypto.password.PasswordEncoder;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;
+&nbsp;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;@Service(&quot;userService&quot;)
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class UserServiceImpl implements UserService {
+&nbsp;    private final UserRepository IUserRepository;
+&nbsp;
+&nbsp;    private final OTPRepository IOTPRepository;
+&nbsp;
+&nbsp;    private final PasswordEncoder passwordEncoder;
+&nbsp;
+&nbsp;    private final JavaMailSender mailSender;
+&nbsp;
+&nbsp;    private final NotificationService notificationService;
+&nbsp;
+&nbsp;    private final Utilities utilities;
+&nbsp;
+&nbsp;    private final UserMapper userMapper;
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public UserResponse registerUser(UserRequest userRequest) throws HiringWireException {
+<b class="nc">&nbsp;        if (IUserRepository.existsByEmail(userRequest.getEmail())) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;User with this email already exists&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        User user = userMapper.toEntity(userRequest);</b>
+<b class="nc">&nbsp;        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));</b>
+&nbsp;
+<b class="nc">&nbsp;        Profile profile = new Profile();</b>
+<b class="nc">&nbsp;        profile.setName(userRequest.getName());</b>
+<b class="nc">&nbsp;        profile.setEmail(userRequest.getEmail());</b>
+<b class="nc">&nbsp;        profile.setAccountType(userRequest.getAccountType().toString());</b>
+&nbsp;
+<b class="nc">&nbsp;        user.setProfile(profile);</b>
+&nbsp;
+<b class="nc">&nbsp;        user.setAccountStatus(userRequest.getAccountType() == AccountType.EMPLOYER</b>
+<b class="nc">&nbsp;                ? AccountStatus.PENDING_APPROVAL</b>
+<b class="nc">&nbsp;                : AccountStatus.ACTIVE);</b>
+&nbsp;
+<b class="nc">&nbsp;        user.setLastLoginDate(LocalDateTime.now());</b>
+&nbsp;
+<b class="nc">&nbsp;        User savedUser = IUserRepository.save(user);</b>
+<b class="nc">&nbsp;        return userMapper.toResponse(savedUser);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public UserResponse loginUser(LoginRequest loginRequest) throws HiringWireException {
+<b class="nc">&nbsp;        User user = IUserRepository.findByEmail(loginRequest.getEmail())</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;));</b>
+&nbsp;
+&nbsp;        // Check account status first
+<b class="nc">&nbsp;        if (user.getAccountStatus() == AccountStatus.BLOCKED) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;ACCOUNT_BLOCKED&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (user.getAccountStatus() == AccountStatus.PENDING_APPROVAL) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;ACCOUNT_PENDING_APPROVAL&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;INVALID_CREDENTIALS&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        user.setLastLoginDate(LocalDateTime.now());</b>
+<b class="nc">&nbsp;        if (user.getAccountStatus() == AccountStatus.INACTIVE) {</b>
+<b class="nc">&nbsp;            String oldStatus = user.getAccountStatus().toString();</b>
+<b class="nc">&nbsp;            user.setAccountStatus(AccountStatus.ACTIVE);</b>
+<b class="nc">&nbsp;            sendStatusChangeNotification(user, oldStatus, &quot;ACTIVE&quot;,</b>
+&nbsp;                    &quot;Your account has been reactivated after successful login.&quot;);
+&nbsp;        }
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        User savedUser = IUserRepository.save(user);</b>
+<b class="nc">&nbsp;        return userMapper.toResponse(savedUser);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Boolean sendOTP(String email) throws Exception {
+<b class="nc">&nbsp;        User user = IUserRepository.findByEmail(email)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        MimeMessage mm = mailSender.createMimeMessage();</b>
+<b class="nc">&nbsp;        MimeMessageHelper message = new MimeMessageHelper(mm, true);</b>
+<b class="nc">&nbsp;        message.setTo(email);</b>
+<b class="nc">&nbsp;        message.setFrom(&quot;vuducduy1112004@gmail.com&quot;, &quot;HiringWire&quot;);</b>
+<b class="nc">&nbsp;        message.setSubject(&quot;Your OTP Code&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        String generatedOtp = utilities.generateOTP();</b>
+&nbsp;
+<b class="nc">&nbsp;        OTP otp = new OTP();</b>
+<b class="nc">&nbsp;        otp.setUser(user);</b>
+<b class="nc">&nbsp;        otp.setOtpCode(generatedOtp);</b>
+<b class="nc">&nbsp;        otp.setCreationTime(LocalDateTime.now());</b>
+&nbsp;
+<b class="nc">&nbsp;        IOTPRepository.save(otp);</b>
+&nbsp;
+<b class="nc">&nbsp;        message.setText(Data.getMessageBody(generatedOtp, user.getName()), true);</b>
+<b class="nc">&nbsp;        mailSender.send(mm);</b>
+&nbsp;
+<b class="nc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Boolean verifyOtp(String email, String otp) throws HiringWireException {
+<b class="nc">&nbsp;        OTP otpEntity = IOTPRepository.findByUserEmail(email)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;OTP_NOT_FOUND&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        if (!otpEntity.getOtpCode().equals(otp)) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;OTP_INCORRECT&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (otpEntity.getCreationTime().isBefore(LocalDateTime.now().minusMinutes(5))) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;OTP_EXPIRED&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    @Scheduled(fixedRate = 60000)
+&nbsp;    public void removeExpiredOTPs() {
+<b class="nc">&nbsp;        LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(5);</b>
+<b class="nc">&nbsp;        List&lt;OTP&gt; expiredOTPs = IOTPRepository.findByCreationTimeBefore(expiryTime);</b>
+<b class="nc">&nbsp;        if (!expiredOTPs.isEmpty()) {</b>
+<b class="nc">&nbsp;            IOTPRepository.deleteAll(expiredOTPs);</b>
+<b class="nc">&nbsp;            System.out.println(&quot;Removed &quot; + expiredOTPs.size() + &quot; expired OTPs&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public ResponseDTO changePassword(LoginRequest loginRequest) throws HiringWireException {
+<b class="nc">&nbsp;        User user = IUserRepository.findByEmail(loginRequest.getEmail())</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;));</b>
+<b class="nc">&nbsp;        user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));</b>
+<b class="nc">&nbsp;        IUserRepository.save(user);</b>
+<b class="nc">&nbsp;        NotificationRequest noti = new NotificationRequest();</b>
+<b class="nc">&nbsp;        noti.setUserId(user.getId());</b>
+<b class="nc">&nbsp;        noti.setMessage(&quot;Password Reset Successful&quot;);</b>
+<b class="nc">&nbsp;        noti.setAction(&quot;Password Reset&quot;);</b>
+<b class="nc">&nbsp;        notificationService.sendNotification(noti);</b>
+<b class="nc">&nbsp;        return new ResponseDTO(&quot;Password changed successfully.&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;UserResponse&gt; getAllUsers() throws HiringWireException {
+<b class="nc">&nbsp;        List&lt;User&gt; users = IUserRepository.findAll();</b>
+<b class="nc">&nbsp;        if (users.isEmpty())</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;NO_USERS_FOUND&quot;);</b>
+<b class="nc">&nbsp;        return users.stream().map(userMapper::toResponse).toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void changeAccountStatus(Long id, String accountStatus) throws HiringWireException {
+<b class="nc">&nbsp;        User user = IUserRepository.findById(id)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;        String oldStatus = user.getAccountStatus().toString();</b>
+&nbsp;        String reason;
+&nbsp;
+<b class="nc">&nbsp;        if (accountStatus.equalsIgnoreCase(&quot;ACTIVE&quot;)) {</b>
+<b class="nc">&nbsp;            user.setAccountStatus(AccountStatus.ACTIVE);</b>
+<b class="nc">&nbsp;            reason = &quot;Your account is now active.&quot;;</b>
+<b class="nc">&nbsp;        } else if (accountStatus.equalsIgnoreCase(&quot;INACTIVE&quot;)) {</b>
+<b class="nc">&nbsp;            user.setAccountStatus(AccountStatus.INACTIVE);</b>
+<b class="nc">&nbsp;            reason = &quot;Your account has been marked as inactive due to inactivity.&quot;;</b>
+<b class="nc">&nbsp;        } else if (accountStatus.equalsIgnoreCase(&quot;BLOCKED&quot;)) {</b>
+<b class="nc">&nbsp;            user.setAccountStatus(AccountStatus.BLOCKED);</b>
+<b class="nc">&nbsp;            reason = &quot;Your account has been blocked. Please contact support.&quot;;</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;INVALID_STATUS&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        IUserRepository.save(user);</b>
+<b class="nc">&nbsp;        sendStatusChangeNotification(user, oldStatus, accountStatus.toUpperCase(), reason);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public UserResponse getUserByEmail(String email) throws HiringWireException {
+<b class="nc">&nbsp;        return userMapper.toResponse(IUserRepository.findByEmail(email)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new HiringWireException(&quot;USER_NOT_FOUND&quot;)));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Scheduled(cron = &quot;0 0 0 * * ?&quot;) // Runs daily at midnight
+&nbsp;    public void checkInactiveUsers() throws HiringWireException {
+<b class="nc">&nbsp;        LocalDateTime inactiveThreshold = LocalDateTime.now().minusDays(15);</b>
+<b class="nc">&nbsp;        List&lt;User&gt; users = IUserRepository.findByLastLoginDateBeforeAndAccountStatus(</b>
+&nbsp;                inactiveThreshold, AccountStatus.ACTIVE);
+&nbsp;
+<b class="nc">&nbsp;        for (User user : users) {</b>
+<b class="nc">&nbsp;            String oldStatus = user.getAccountStatus().toString();</b>
+<b class="nc">&nbsp;            user.setAccountStatus(AccountStatus.INACTIVE);</b>
+<b class="nc">&nbsp;            IUserRepository.save(user);</b>
+&nbsp;
+<b class="nc">&nbsp;            sendStatusChangeNotification(user, oldStatus, &quot;INACTIVE&quot;,</b>
+&nbsp;                    &quot;Your account has been marked as inactive due to 15 days of inactivity.&quot;);
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void sendStatusChangeNotification(User user, String oldStatus, String newStatus, String reason) throws HiringWireException {
+&nbsp;        // In-app notification
+<b class="nc">&nbsp;        NotificationRequest notification = new NotificationRequest();</b>
+<b class="nc">&nbsp;        notification.setUserId(user.getId());</b>
+<b class="nc">&nbsp;        notification.setAction(&quot;Account Status Change&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        String message = String.format(&quot;Your account status has been changed from %s to %s. %s&quot;,</b>
+&nbsp;                oldStatus, newStatus, reason);
+<b class="nc">&nbsp;        notification.setMessage(message);</b>
+&nbsp;
+<b class="nc">&nbsp;        notificationService.sendNotification(notification);</b>
+&nbsp;
+&nbsp;        // Email notification
+&nbsp;        try {
+<b class="nc">&nbsp;            MimeMessage email = mailSender.createMimeMessage();</b>
+<b class="nc">&nbsp;            MimeMessageHelper helper = new MimeMessageHelper(email, true);</b>
+<b class="nc">&nbsp;            helper.setTo(user.getEmail());</b>
+<b class="nc">&nbsp;            helper.setFrom(&quot;vuducduy1112004@gmail.com&quot;, &quot;HiringWire&quot;);</b>
+<b class="nc">&nbsp;            helper.setSubject(&quot;Account Status Change Notification&quot;);</b>
+<b class="nc">&nbsp;            helper.setText(message, true);</b>
+<b class="nc">&nbsp;            mailSender.send(email);</b>
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            throw new HiringWireException(&quot;Failed to send email notification: &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;UserResponse&gt; getUsersForChat(String accountType, Long userId) {
+&nbsp;        List&lt;User&gt; users;
+&nbsp;        try {
+<b class="nc">&nbsp;            if (&quot;ADMIN&quot;.equals(accountType)) {</b>
+<b class="nc">&nbsp;                users = IUserRepository.findAll();</b>
+<b class="nc">&nbsp;            } else if (&quot;APPLICANT&quot;.equals(accountType)) {</b>
+<b class="nc">&nbsp;                users = IUserRepository.findByAccountType(AccountType.EMPLOYER);</b>
+<b class="nc">&nbsp;            } else if (&quot;EMPLOYER&quot;.equals(accountType)) {</b>
+<b class="nc">&nbsp;                users = IUserRepository.findByAccountType(AccountType.APPLICANT);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                throw new IllegalArgumentException(&quot;Invalid account type: &quot; + accountType);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        } catch (IllegalArgumentException e) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid account type: &quot; + accountType, e);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return users.stream()</b>
+<b class="nc">&nbsp;                .filter(user -&gt; !user.getId().equals(userId))</b>
+<b class="nc">&nbsp;                .map(userMapper::toResponse)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toList());</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

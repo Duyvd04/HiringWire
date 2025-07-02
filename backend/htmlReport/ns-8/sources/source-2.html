@@ -1,0 +1,165 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Profile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.model</a>
+</div>
+
+<h1>Coverage Summary for Class: Profile (com.hiringwire.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Profile</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.model;
+&nbsp;
+&nbsp;import java.util.Base64;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import com.hiringwire.dto.Certification;
+&nbsp;import com.hiringwire.dto.Experience;
+&nbsp;import com.hiringwire.dto.ProfileDTO;
+&nbsp;import jakarta.persistence.*;
+&nbsp;import lombok.AllArgsConstructor;
+&nbsp;import lombok.Builder;
+&nbsp;import lombok.Data;
+&nbsp;import lombok.NoArgsConstructor;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Data
+&nbsp;@NoArgsConstructor
+&nbsp;@AllArgsConstructor
+&nbsp;@Table(name = &quot;profiles&quot;)
+&nbsp;@Builder
+&nbsp;public class Profile {
+&nbsp;	@Id
+&nbsp;	@GeneratedValue(strategy = GenerationType.IDENTITY)
+&nbsp;	private Long id;
+&nbsp;	private String name;
+&nbsp;	private String email;
+&nbsp;	private String jobTitle;
+&nbsp;	private String company;
+&nbsp;	private String location;
+&nbsp;	private String about;
+&nbsp;	@Lob
+&nbsp;	@Column(name = &quot;picture&quot;, columnDefinition = &quot;LONGBLOB&quot;)
+&nbsp;	private byte[] picture;
+&nbsp;	private Long totalExp;
+&nbsp;
+&nbsp;	@ElementCollection(fetch = FetchType.EAGER)
+&nbsp;	@CollectionTable(name = &quot;profile_skills&quot;, joinColumns = @JoinColumn(name = &quot;profile_id&quot;))
+&nbsp;	private List&lt;String&gt; skills;
+&nbsp;
+&nbsp;	@ElementCollection(fetch = FetchType.EAGER)
+&nbsp;	@CollectionTable(name = &quot;profile_experiences&quot;, joinColumns = @JoinColumn(name = &quot;profile_id&quot;))
+&nbsp;	private List&lt;Experience&gt; experiences;
+&nbsp;
+&nbsp;	@ElementCollection(fetch = FetchType.EAGER)
+&nbsp;	@CollectionTable(name = &quot;profile_certifications&quot;, joinColumns = @JoinColumn(name = &quot;profile_id&quot;))
+&nbsp;	private List&lt;Certification&gt; certifications;
+&nbsp;
+&nbsp;	@ElementCollection(fetch = FetchType.EAGER)
+&nbsp;	@CollectionTable(name = &quot;profile_saved_jobs&quot;, joinColumns = @JoinColumn(name = &quot;profile_id&quot;))
+&nbsp;	private List&lt;Long&gt; savedJobs;
+&nbsp;	private String accountType;
+&nbsp;
+&nbsp;	public ProfileDTO toDTO() {
+<b class="nc">&nbsp;		return new ProfileDTO(</b>
+&nbsp;				this.id, this.name, this.email, this.jobTitle, this.company,
+&nbsp;				this.location, this.about,
+<b class="nc">&nbsp;				this.picture != null ? Base64.getEncoder().encodeToString(this.picture) : null,</b>
+&nbsp;				this.totalExp, this.skills, this.experiences, this.certifications, this.savedJobs, this.accountType
+&nbsp;		);
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,201 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > ProfileMapperImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.mapper</a>
+</div>
+
+<h1>Coverage Summary for Class: ProfileMapperImpl (com.hiringwire.mapper)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ProfileMapperImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/52)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.mapper;
+&nbsp;
+&nbsp;import com.hiringwire.dto.Certification;
+&nbsp;import com.hiringwire.dto.Experience;
+&nbsp;import com.hiringwire.model.Profile;
+&nbsp;import com.hiringwire.model.request.ProfileRequest;
+&nbsp;import com.hiringwire.model.response.ProfileResponse;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import javax.annotation.processing.Generated;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;@Generated(
+&nbsp;    value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
+&nbsp;    date = &quot;2025-06-27T13:56:25+0700&quot;,
+&nbsp;    comments = &quot;version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)&quot;
+&nbsp;)
+&nbsp;@Component
+<b class="nc">&nbsp;public class ProfileMapperImpl implements ProfileMapper {</b>
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Profile toEntity(ProfileRequest request) {
+<b class="nc">&nbsp;        if ( request == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Profile.ProfileBuilder profile = Profile.builder();</b>
+&nbsp;
+<b class="nc">&nbsp;        profile.name( request.getName() );</b>
+<b class="nc">&nbsp;        profile.email( request.getEmail() );</b>
+<b class="nc">&nbsp;        profile.jobTitle( request.getJobTitle() );</b>
+<b class="nc">&nbsp;        profile.company( request.getCompany() );</b>
+<b class="nc">&nbsp;        profile.location( request.getLocation() );</b>
+<b class="nc">&nbsp;        profile.about( request.getAbout() );</b>
+<b class="nc">&nbsp;        profile.totalExp( request.getTotalExp() );</b>
+<b class="nc">&nbsp;        List&lt;String&gt; list = request.getSkills();</b>
+<b class="nc">&nbsp;        if ( list != null ) {</b>
+<b class="nc">&nbsp;            profile.skills( new ArrayList&lt;String&gt;( list ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Experience&gt; list1 = request.getExperiences();</b>
+<b class="nc">&nbsp;        if ( list1 != null ) {</b>
+<b class="nc">&nbsp;            profile.experiences( new ArrayList&lt;Experience&gt;( list1 ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Certification&gt; list2 = request.getCertifications();</b>
+<b class="nc">&nbsp;        if ( list2 != null ) {</b>
+<b class="nc">&nbsp;            profile.certifications( new ArrayList&lt;Certification&gt;( list2 ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Long&gt; list3 = request.getSavedJobs();</b>
+<b class="nc">&nbsp;        if ( list3 != null ) {</b>
+<b class="nc">&nbsp;            profile.savedJobs( new ArrayList&lt;Long&gt;( list3 ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        profile.accountType( request.getAccountType() );</b>
+&nbsp;
+<b class="nc">&nbsp;        profile.picture( fromBase64(request.getPicture()) );</b>
+&nbsp;
+<b class="nc">&nbsp;        return profile.build();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public ProfileResponse toResponse(Profile profile) {
+<b class="nc">&nbsp;        if ( profile == null ) {</b>
+<b class="nc">&nbsp;            return null;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        ProfileResponse profileResponse = new ProfileResponse();</b>
+&nbsp;
+<b class="nc">&nbsp;        profileResponse.setId( profile.getId() );</b>
+<b class="nc">&nbsp;        profileResponse.setName( profile.getName() );</b>
+<b class="nc">&nbsp;        profileResponse.setEmail( profile.getEmail() );</b>
+<b class="nc">&nbsp;        profileResponse.setJobTitle( profile.getJobTitle() );</b>
+<b class="nc">&nbsp;        profileResponse.setCompany( profile.getCompany() );</b>
+<b class="nc">&nbsp;        profileResponse.setLocation( profile.getLocation() );</b>
+<b class="nc">&nbsp;        profileResponse.setAbout( profile.getAbout() );</b>
+<b class="nc">&nbsp;        profileResponse.setTotalExp( profile.getTotalExp() );</b>
+<b class="nc">&nbsp;        List&lt;String&gt; list = profile.getSkills();</b>
+<b class="nc">&nbsp;        if ( list != null ) {</b>
+<b class="nc">&nbsp;            profileResponse.setSkills( new ArrayList&lt;String&gt;( list ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Experience&gt; list1 = profile.getExperiences();</b>
+<b class="nc">&nbsp;        if ( list1 != null ) {</b>
+<b class="nc">&nbsp;            profileResponse.setExperiences( new ArrayList&lt;Experience&gt;( list1 ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Certification&gt; list2 = profile.getCertifications();</b>
+<b class="nc">&nbsp;        if ( list2 != null ) {</b>
+<b class="nc">&nbsp;            profileResponse.setCertifications( new ArrayList&lt;Certification&gt;( list2 ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Long&gt; list3 = profile.getSavedJobs();</b>
+<b class="nc">&nbsp;        if ( list3 != null ) {</b>
+<b class="nc">&nbsp;            profileResponse.setSavedJobs( new ArrayList&lt;Long&gt;( list3 ) );</b>
+&nbsp;        }
+<b class="nc">&nbsp;        profileResponse.setAccountType( profile.getAccountType() );</b>
+&nbsp;
+<b class="nc">&nbsp;        profileResponse.setPicture( toBase64(profile.getPicture()) );</b>
+&nbsp;
+<b class="nc">&nbsp;        return profileResponse;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,411 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > ResumeParser</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.service</a>
+</div>
+
+<h1>Coverage Summary for Class: ResumeParser (com.hiringwire.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ResumeParser</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/120)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.service;
+&nbsp;
+&nbsp;import org.apache.pdfbox.pdmodel.PDDocument;
+&nbsp;import org.apache.pdfbox.text.PDFTextStripper;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.io.ByteArrayInputStream;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.*;
+&nbsp;import java.util.regex.Matcher;
+&nbsp;import java.util.regex.Pattern;
+&nbsp;
+&nbsp;@Service
+<b class="nc">&nbsp;public class ResumeParser {</b>
+&nbsp;
+&nbsp;    // Common skills categorized for better matching
+<b class="nc">&nbsp;    private static final Map&lt;String, List&lt;String&gt;&gt; SKILL_CATEGORIES = new HashMap&lt;&gt;();</b>
+&nbsp;    static {
+<b class="nc">&nbsp;        SKILL_CATEGORIES.put(&quot;Programming Languages&quot;, Arrays.asList(</b>
+&nbsp;                &quot;Java&quot;, &quot;Python&quot;, &quot;JavaScript&quot;, &quot;TypeScript&quot;, &quot;C\\+\\+&quot;, &quot;C#&quot;, &quot;Go&quot;, &quot;Rust&quot;, &quot;Kotlin&quot;, &quot;Scala&quot;
+&nbsp;        ));
+<b class="nc">&nbsp;        SKILL_CATEGORIES.put(&quot;Frameworks&quot;, Arrays.asList(</b>
+&nbsp;                &quot;Spring&quot;, &quot;React&quot;, &quot;Angular&quot;, &quot;Vue.js&quot;, &quot;Node.js&quot;, &quot;Django&quot;, &quot;Flask&quot;, &quot;Express.js&quot;
+&nbsp;        ));
+<b class="nc">&nbsp;        SKILL_CATEGORIES.put(&quot;Databases&quot;, Arrays.asList(</b>
+&nbsp;                &quot;SQL&quot;, &quot;MySQL&quot;, &quot;PostgreSQL&quot;, &quot;MongoDB&quot;, &quot;Oracle&quot;, &quot;Redis&quot;, &quot;Cassandra&quot;
+&nbsp;        ));
+<b class="nc">&nbsp;        SKILL_CATEGORIES.put(&quot;Cloud &amp; DevOps&quot;, Arrays.asList(</b>
+&nbsp;                &quot;AWS&quot;, &quot;Azure&quot;, &quot;GCP&quot;, &quot;Docker&quot;, &quot;Kubernetes&quot;, &quot;Terraform&quot;, &quot;Jenkins&quot;, &quot;Git&quot;, &quot;CI/CD&quot;
+&nbsp;        ));
+<b class="nc">&nbsp;        SKILL_CATEGORIES.put(&quot;Web Technologies&quot;, Arrays.asList(</b>
+&nbsp;                &quot;HTML&quot;, &quot;CSS&quot;, &quot;REST API&quot;, &quot;GraphQL&quot;, &quot;WebSocket&quot;
+&nbsp;        ));
+&nbsp;    }
+&nbsp;
+&nbsp;    public Map&lt;String, Object&gt; parseResume(byte[] pdfData) throws IOException {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; extractedInfo = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        if (pdfData == null || pdfData.length == 0) {</b>
+<b class="nc">&nbsp;            throw new IOException(&quot;Invalid PDF data provided&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(pdfData))) {</b>
+<b class="nc">&nbsp;            if (document.isEncrypted()) {</b>
+<b class="nc">&nbsp;                throw new IOException(&quot;Cannot parse encrypted PDF&quot;);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            PDFTextStripper stripper = new PDFTextStripper();</b>
+<b class="nc">&nbsp;            String text = stripper.getText(document).replaceAll(&quot;\\s+&quot;, &quot; &quot;).trim();</b>
+&nbsp;
+&nbsp;            // Extract information
+<b class="nc">&nbsp;            extractedInfo.put(&quot;name&quot;, extractName(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;email&quot;, extractEmail(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;phone&quot;, extractPhone(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;links&quot;, extractLinks(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;skills&quot;, extractSkills(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;education&quot;, extractEducation(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;experience&quot;, extractExperience(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;certifications&quot;, extractCertifications(text));</b>
+<b class="nc">&nbsp;            extractedInfo.put(&quot;languages&quot;, extractLanguages(text));</b>
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            throw new IOException(&quot;Error parsing resume: &quot; + e.getMessage(), e);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+<b class="nc">&nbsp;        return extractedInfo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String extractName(String text) {
+&nbsp;        // Assume name is at the top, often in larger font or standalone
+<b class="nc">&nbsp;        String[] lines = text.split(&quot;\n&quot;);</b>
+<b class="nc">&nbsp;        for (String line : lines) {</b>
+<b class="nc">&nbsp;            line = line.trim();</b>
+<b class="nc">&nbsp;            if (line.isEmpty()) continue;</b>
+&nbsp;            // Basic name pattern: Two words, capitalized, not containing numbers or special chars
+<b class="nc">&nbsp;            if (line.matches(&quot;[A-Z][a-z]+\\s+[A-Z][a-z]+.*&quot;)) {</b>
+<b class="nc">&nbsp;                return line;</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return &quot;&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String extractEmail(String text) {
+<b class="nc">&nbsp;        Pattern pattern = Pattern.compile(&quot;\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}\\b&quot;);</b>
+<b class="nc">&nbsp;        Matcher matcher = pattern.matcher(text);</b>
+<b class="nc">&nbsp;        return matcher.find() ? matcher.group().toLowerCase() : &quot;&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String extractPhone(String text) {
+&nbsp;        // Enhanced phone regex to handle various formats
+<b class="nc">&nbsp;        Pattern pattern = Pattern.compile(</b>
+&nbsp;                &quot;\\b\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}\\b|&quot; +
+&nbsp;                        &quot;\\b\\+?\\d{1,3}[-.\\s]?\\d{3}[-.\\s]?\\d{3}[-.\\s]?\\d{4}\\b&quot;
+&nbsp;        );
+<b class="nc">&nbsp;        Matcher matcher = pattern.matcher(text);</b>
+<b class="nc">&nbsp;        if (matcher.find()) {</b>
+<b class="nc">&nbsp;            String phone = matcher.group().replaceAll(&quot;[^0-9+]&quot;, &quot;&quot;);</b>
+<b class="nc">&nbsp;            return phone.startsWith(&quot;+&quot;) ? phone : &quot;+1&quot; + phone; // Normalize to include country code</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return &quot;&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;String&gt; extractLinks(String text) {
+<b class="nc">&nbsp;        List&lt;String&gt; links = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        Pattern pattern = Pattern.compile(</b>
+&nbsp;                &quot;\\b(https?://)?(?:www\\.)?(linkedin\\.com/in/[A-Za-z0-9-]+|&quot; +
+&nbsp;                        &quot;github\\.com/[A-Za-z0-9-]+|portfolio\\.[A-Za-z0-9.-]+|[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/[A-Za-z0-9-]+)\\b&quot;
+&nbsp;        );
+<b class="nc">&nbsp;        Matcher matcher = pattern.matcher(text.toLowerCase());</b>
+<b class="nc">&nbsp;        while (matcher.find()) {</b>
+<b class="nc">&nbsp;            String link = matcher.group();</b>
+<b class="nc">&nbsp;            if (!link.startsWith(&quot;http&quot;)) {</b>
+<b class="nc">&nbsp;                link = &quot;https://&quot; + link;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            links.add(link);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return links;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Map&lt;String, List&lt;String&gt;&gt; extractSkills(String text) {
+<b class="nc">&nbsp;        Map&lt;String, List&lt;String&gt;&gt; categorizedSkills = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        String lowerText = text.toLowerCase();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (Map.Entry&lt;String, List&lt;String&gt;&gt; category : SKILL_CATEGORIES.entrySet()) {</b>
+<b class="nc">&nbsp;            List&lt;String&gt; matchedSkills = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;            for (String skill : category.getValue()) {</b>
+&nbsp;                // Case-insensitive exact match or partial match with boundaries
+<b class="nc">&nbsp;                if (lowerText.contains(skill.toLowerCase()) ||</b>
+<b class="nc">&nbsp;                        Pattern.compile(&quot;\\b&quot; + Pattern.quote(skill.toLowerCase()) + &quot;\\b&quot;).matcher(lowerText).find()) {</b>
+<b class="nc">&nbsp;                    matchedSkills.add(skill);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;            if (!matchedSkills.isEmpty()) {</b>
+<b class="nc">&nbsp;                categorizedSkills.put(category.getKey(), matchedSkills);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+<b class="nc">&nbsp;        return categorizedSkills;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;Map&lt;String, String&gt;&gt; extractEducation(String text) {
+<b class="nc">&nbsp;        List&lt;Map&lt;String, String&gt;&gt; educationList = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        Pattern degreePattern = Pattern.compile(</b>
+&nbsp;                &quot;(?i)(Bachelor|B\\.?[A-Za-z]*|Master|M\\.?[A-Za-z]*|PhD|Doctorate).*?(?=\\d{4}|,\\s[A-Z]|$)&quot;,
+&nbsp;                Pattern.DOTALL
+&nbsp;        );
+<b class="nc">&nbsp;        Pattern datePattern = Pattern.compile(&quot;\\b(19|20)\\d{2}\\s*[-–—]\\s*(19|20)?\\d{2}?\\b&quot;);</b>
+<b class="nc">&nbsp;        Pattern institutionPattern = Pattern.compile(</b>
+&nbsp;                &quot;(?i)(University|College|Institute|Academy|School).*?(?=\\d{4}|$)&quot;,
+&nbsp;                Pattern.DOTALL
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        Matcher degreeMatcher = degreePattern.matcher(text);</b>
+<b class="nc">&nbsp;        while (degreeMatcher.find()) {</b>
+<b class="nc">&nbsp;            Map&lt;String, String&gt; education = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;            String degreeText = degreeMatcher.group().trim();</b>
+<b class="nc">&nbsp;            education.put(&quot;degree&quot;, degreeText);</b>
+&nbsp;
+&nbsp;            // Extract institution
+<b class="nc">&nbsp;            Matcher instMatcher = institutionPattern.matcher(text.substring(degreeMatcher.start()));</b>
+<b class="nc">&nbsp;            if (instMatcher.find()) {</b>
+<b class="nc">&nbsp;                education.put(&quot;institution&quot;, instMatcher.group().trim());</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                education.put(&quot;institution&quot;, &quot;&quot;);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Extract dates
+<b class="nc">&nbsp;            Matcher dateMatcher = datePattern.matcher(text.substring(degreeMatcher.start()));</b>
+<b class="nc">&nbsp;            if (dateMatcher.find()) {</b>
+<b class="nc">&nbsp;                education.put(&quot;dates&quot;, dateMatcher.group().trim());</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                education.put(&quot;dates&quot;, &quot;&quot;);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            educationList.add(education);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+<b class="nc">&nbsp;        return educationList;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;Map&lt;String, String&gt;&gt; extractExperience(String text) {
+<b class="nc">&nbsp;        List&lt;Map&lt;String, String&gt;&gt; experienceList = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        Pattern jobPattern = Pattern.compile(</b>
+&nbsp;                &quot;(?i)(Engineer|Developer|Manager|Director|Lead|Architect|Consultant|Analyst|Specialist).*?(?=\\d{4}|$)&quot;,
+&nbsp;                Pattern.DOTALL
+&nbsp;        );
+<b class="nc">&nbsp;        Pattern datePattern = Pattern.compile(&quot;\\b(19|20)\\d{2}\\s*[-–—]\\s*(19|20)?\\d{2}?\\b&quot;);</b>
+<b class="nc">&nbsp;        Pattern companyPattern = Pattern.compile(</b>
+&nbsp;                &quot;(?i)(Inc\\.|Corporation|Corp\\.|LLC|Group|Technologies|Systems|Labs|Solutions).*?(?=\\d{4}|$)&quot;,
+&nbsp;                Pattern.DOTALL
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        Matcher jobMatcher = jobPattern.matcher(text);</b>
+<b class="nc">&nbsp;        while (jobMatcher.find()) {</b>
+<b class="nc">&nbsp;            Map&lt;String, String&gt; experience = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;            String jobTitle = jobMatcher.group().trim();</b>
+<b class="nc">&nbsp;            experience.put(&quot;title&quot;, jobTitle);</b>
+&nbsp;
+&nbsp;            // Extract company
+<b class="nc">&nbsp;            Matcher compMatcher = companyPattern.matcher(text.substring(jobMatcher.start()));</b>
+<b class="nc">&nbsp;            if (compMatcher.find()) {</b>
+<b class="nc">&nbsp;                experience.put(&quot;company&quot;, compMatcher.group().trim());</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                experience.put(&quot;company&quot;, &quot;&quot;);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;            // Extract dates
+<b class="nc">&nbsp;            Matcher dateMatcher = datePattern.matcher(text.substring(jobMatcher.start()));</b>
+<b class="nc">&nbsp;            if (dateMatcher.find()) {</b>
+<b class="nc">&nbsp;                experience.put(&quot;dates&quot;, dateMatcher.group().trim());</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                experience.put(&quot;dates&quot;, &quot;&quot;);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            experienceList.add(experience);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+<b class="nc">&nbsp;        return experienceList;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;String&gt; extractCertifications(String text) {
+<b class="nc">&nbsp;        List&lt;String&gt; certifications = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        Pattern pattern = Pattern.compile(</b>
+&nbsp;                &quot;(?i)(Certified|Certification|C\\.?[A-Za-z]*).*?(?=\\d{4}|,\\s[A-Z]|$)&quot;,
+&nbsp;                Pattern.DOTALL
+&nbsp;        );
+<b class="nc">&nbsp;        Matcher matcher = pattern.matcher(text);</b>
+<b class="nc">&nbsp;        while (matcher.find()) {</b>
+<b class="nc">&nbsp;            certifications.add(matcher.group().trim());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return certifications;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;String&gt; extractLanguages(String text) {
+<b class="nc">&nbsp;        List&lt;String&gt; languages = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        String[] commonLanguages = {</b>
+&nbsp;                &quot;English&quot;, &quot;Spanish&quot;, &quot;French&quot;, &quot;German&quot;, &quot;Chinese&quot;, &quot;Mandarin&quot;,
+&nbsp;                &quot;Hindi&quot;, &quot;Arabic&quot;, &quot;Portuguese&quot;, &quot;Russian&quot;, &quot;Japanese&quot;
+&nbsp;        };
+<b class="nc">&nbsp;        String lowerText = text.toLowerCase();</b>
+<b class="nc">&nbsp;        for (String lang : commonLanguages) {</b>
+<b class="nc">&nbsp;            if (lowerText.contains(lang.toLowerCase())) {</b>
+<b class="nc">&nbsp;                languages.add(lang);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return languages;</b>
+&nbsp;    }
+&nbsp;}
+&nbsp;//package com.hiringwire.service;
+&nbsp;//
+&nbsp;//import com.fasterxml.jackson.databind.JsonNode;
+&nbsp;//import com.fasterxml.jackson.databind.ObjectMapper;
+&nbsp;//import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;//import org.springframework.core.io.ByteArrayResource;
+&nbsp;//import org.springframework.http.*;
+&nbsp;//import org.springframework.stereotype.Service;
+&nbsp;//import org.springframework.util.LinkedMultiValueMap;
+&nbsp;//import org.springframework.util.MultiValueMap;
+&nbsp;//import org.springframework.web.client.RestTemplate;
+&nbsp;//
+&nbsp;//import java.util.*;
+&nbsp;//
+&nbsp;//@Service
+&nbsp;//public class ResumeParser {
+&nbsp;//
+&nbsp;//    @Autowired
+&nbsp;//    private RestTemplate restTemplate;
+&nbsp;//
+&nbsp;//    public Map&lt;String, Object&gt; parseResume(byte[] resumeData) throws Exception {
+&nbsp;//        if (resumeData == null || resumeData.length == 0) {
+&nbsp;//            throw new Exception(&quot;Invalid PDF data provided&quot;);
+&nbsp;//        }
+&nbsp;//
+&nbsp;//        String flaskUrl = &quot;http://localhost:5000/parse-resume&quot;;
+&nbsp;//        HttpHeaders headers = new HttpHeaders();
+&nbsp;//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+&nbsp;//
+&nbsp;//        MultiValueMap&lt;String, Object&gt; body = new LinkedMultiValueMap&lt;&gt;();
+&nbsp;//        body.add(&quot;file&quot;, new ByteArrayResource(resumeData) {
+&nbsp;//            @Override
+&nbsp;//            public String getFilename() {
+&nbsp;//                return &quot;resume.pdf&quot;;
+&nbsp;//            }
+&nbsp;//        });
+&nbsp;//
+&nbsp;//        HttpEntity&lt;MultiValueMap&lt;String, Object&gt;&gt; requestEntity = new HttpEntity&lt;&gt;(body, headers);
+&nbsp;//        ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(flaskUrl, requestEntity, String.class);
+&nbsp;//
+&nbsp;//        if (response.getStatusCode() != HttpStatus.OK) {
+&nbsp;//            throw new Exception(&quot;Failed to parse resume: &quot; + response.getBody());
+&nbsp;//        }
+&nbsp;//
+&nbsp;//        ObjectMapper mapper = new ObjectMapper();
+&nbsp;//        JsonNode jsonNode = mapper.readTree(response.getBody());
+&nbsp;//
+&nbsp;//        Map&lt;String, Object&gt; parsedInfo = new HashMap&lt;&gt;();
+&nbsp;//        parsedInfo.put(&quot;name&quot;, jsonNode.get(&quot;name&quot;).asText());
+&nbsp;//        parsedInfo.put(&quot;email&quot;, jsonNode.get(&quot;email&quot;).asText());
+&nbsp;//        parsedInfo.put(&quot;phone&quot;, jsonNode.get(&quot;phone&quot;).asText());
+&nbsp;//        parsedInfo.put(&quot;links&quot;, mapper.convertValue(jsonNode.get(&quot;links&quot;), List.class));
+&nbsp;//        parsedInfo.put(&quot;skills&quot;, mapper.convertValue(jsonNode.get(&quot;skills&quot;), Map.class));
+&nbsp;//        parsedInfo.put(&quot;education&quot;, mapper.convertValue(jsonNode.get(&quot;education&quot;), List.class));
+&nbsp;//        parsedInfo.put(&quot;experience&quot;, mapper.convertValue(jsonNode.get(&quot;experience&quot;), List.class));
+&nbsp;//        parsedInfo.put(&quot;certifications&quot;, mapper.convertValue(jsonNode.get(&quot;certifications&quot;), List.class));
+&nbsp;//        parsedInfo.put(&quot;languages&quot;, mapper.convertValue(jsonNode.get(&quot;languages&quot;), List.class));
+&nbsp;//
+&nbsp;//        return parsedInfo;
+&nbsp;//    }
+&nbsp;//}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

@@ -14,13 +14,20 @@ const Chat: React.FC<ChatProps> = ({ recipientId }) => {
     const [messageInput, setMessageInput] = useState<string>('');
 
     useEffect(() => {
+        if (!user.id || !recipientId) {
+            console.error('Invalid user or recipient ID:', user.id, recipientId);
+            return;
+        }
+
         // Fetch chat history
-        getChatHistory(user.id, recipientId).then((history) => {
-            console.log('Loaded Chat History:', history);
-            setMessages(history);
-        }).catch((error) => {
-            console.error('Failed to load chat history:', error);
-        });
+        getChatHistory(user.id, recipientId)
+            .then((history) => {
+                console.log('Loaded Chat History:', history);
+                setMessages(history);
+            })
+            .catch((error) => {
+                console.error('Failed to load chat history:', error);
+            });
 
         // Connect to WebSocket
         connectWebSocket(user.id, recipientId, (message: any) => {
@@ -37,6 +44,14 @@ const Chat: React.FC<ChatProps> = ({ recipientId }) => {
     const handleSendMessage = () => {
         if (messageInput.trim()) {
             console.log('Sending Message:', messageInput);
+            const newMessage = {
+                senderId: user.id,
+                recipientId,
+                content: messageInput,
+                type: 'CHAT',
+                timestamp: new Date().toISOString(),
+            };
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
             sendMessage(user.id, recipientId, messageInput);
             setMessageInput('');
         }
@@ -69,7 +84,7 @@ const Chat: React.FC<ChatProps> = ({ recipientId }) => {
                     onChange={(e) => setMessageInput(e.currentTarget.value)}
                     className="flex-grow"
                 />
-                <Button onClick={handleSendMessage} color="teal">
+                <Button onClick={handleSendMessage} color="teal" disabled={!messageInput.trim()}>
                     Send
                 </Button>
             </Group>

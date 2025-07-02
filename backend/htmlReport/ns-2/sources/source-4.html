@@ -1,0 +1,218 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > JobController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.api</a>
+</div>
+
+<h1>Coverage Summary for Class: JobController (com.hiringwire.api)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JobController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/20)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.api;
+&nbsp;
+&nbsp;import com.hiringwire.dto.Application;
+&nbsp;import com.hiringwire.exception.HiringWireException;
+&nbsp;import com.hiringwire.model.ApplicationStatus;
+&nbsp;import com.hiringwire.model.request.ApplicantRequest;
+&nbsp;import com.hiringwire.model.request.JobRequest;
+&nbsp;import com.hiringwire.model.response.JobResponse;
+&nbsp;import com.hiringwire.dto.ResponseDTO;
+&nbsp;import com.hiringwire.service.JobService;
+&nbsp;
+&nbsp;import io.swagger.v3.oas.annotations.Operation;
+&nbsp;import io.swagger.v3.oas.annotations.tags.Tag;
+&nbsp;import io.swagger.v3.oas.annotations.Parameter;
+&nbsp;import io.swagger.v3.oas.annotations.media.Content;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponse;
+&nbsp;
+&nbsp;import jakarta.validation.Valid;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.validation.annotation.Validated;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@RestController
+&nbsp;@CrossOrigin
+&nbsp;@RequestMapping(&quot;/jobs&quot;)
+&nbsp;@Validated
+&nbsp;@RequiredArgsConstructor
+&nbsp;@Tag(name = &quot;Job Controller&quot;, description = &quot;APIs for job postings, applications, and job management&quot;)
+&nbsp;public class JobController {
+&nbsp;
+&nbsp;	private final JobService jobService;
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Post a new job&quot;, description = &quot;Create a new job posting&quot;)
+&nbsp;	@PostMapping(&quot;/post&quot;)
+&nbsp;	public ResponseEntity&lt;JobResponse&gt; postJob(
+&nbsp;			@RequestBody @Valid JobRequest jobRequest) throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(jobService.postJob(jobRequest), HttpStatus.CREATED);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Post multiple jobs&quot;, description = &quot;Create multiple job postings at once&quot;)
+&nbsp;	@PostMapping(&quot;/postAll&quot;)
+&nbsp;	public ResponseEntity&lt;List&lt;JobResponse&gt;&gt; postAllJobs(
+&nbsp;			@RequestBody @Valid List&lt;JobRequest&gt; jobRequests) {
+<b class="nc">&nbsp;		List&lt;JobResponse&gt; responses = jobRequests.stream()</b>
+<b class="nc">&nbsp;				.map(request -&gt; {</b>
+&nbsp;					try {
+<b class="nc">&nbsp;						return jobService.postJob(request);</b>
+<b class="nc">&nbsp;					} catch (HiringWireException e) {</b>
+<b class="nc">&nbsp;						e.printStackTrace();</b>
+<b class="nc">&nbsp;						return null;</b>
+&nbsp;					}
+&nbsp;				})
+<b class="nc">&nbsp;				.filter(x -&gt; x != null)</b>
+<b class="nc">&nbsp;				.toList();</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(responses, HttpStatus.CREATED);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Get all jobs&quot;, description = &quot;Fetch list of all posted jobs&quot;)
+&nbsp;	@GetMapping(&quot;/getAll&quot;)
+&nbsp;	public ResponseEntity&lt;List&lt;JobResponse&gt;&gt; getAllJobs() throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(jobService.getAllJobs(), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Get a job by ID&quot;, description = &quot;Fetch a specific job by its ID&quot;)
+&nbsp;	@GetMapping(&quot;/get/{id}&quot;)
+&nbsp;	public ResponseEntity&lt;JobResponse&gt; getJob(
+&nbsp;			@Parameter(description = &quot;ID of the job to retrieve&quot;) @PathVariable Long id) throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(jobService.getJob(id), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Apply for a job&quot;, description = &quot;Submit application to a specific job&quot;)
+&nbsp;	@PostMapping(&quot;/apply/{id}&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt; applyJob(
+&nbsp;			@Parameter(description = &quot;ID of the job to apply&quot;) @PathVariable Long id,
+&nbsp;			@RequestBody @Valid ApplicantRequest applicantRequest) throws HiringWireException {
+<b class="nc">&nbsp;		jobService.applyJob(id, applicantRequest);</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(new ResponseDTO(&quot;Applied Successfully&quot;), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Get jobs posted by employer&quot;, description = &quot;Fetch jobs posted by a specific user&quot;)
+&nbsp;	@GetMapping(&quot;/postedBy/{id}&quot;)
+&nbsp;	public ResponseEntity&lt;List&lt;JobResponse&gt;&gt; getJobsPostedBy(
+&nbsp;			@Parameter(description = &quot;User ID&quot;) @PathVariable Long id) throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(jobService.getJobsPostedBy(id), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Get job application history by user and status&quot;, description = &quot;Retrieve job application history with a specific status&quot;)
+&nbsp;	@GetMapping(&quot;/history/{id}/{applicationStatus}&quot;)
+&nbsp;	public ResponseEntity&lt;List&lt;JobResponse&gt;&gt; getHistory(
+&nbsp;			@Parameter(description = &quot;User ID&quot;) @PathVariable Long id,
+&nbsp;			@Parameter(description = &quot;Application Status&quot;) @PathVariable ApplicationStatus applicationStatus) {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(jobService.getHistory(id, applicationStatus), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Change application status&quot;, description = &quot;Update the status of a specific job application&quot;)
+&nbsp;	@PostMapping(&quot;/changeAppStatus&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt; changeAppStatus(
+&nbsp;			@RequestBody Application application) throws HiringWireException {
+<b class="nc">&nbsp;		jobService.changeAppStatus(application);</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(new ResponseDTO(&quot;Status Changed Successfully&quot;), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Operation(summary = &quot;Delete a job&quot;, description = &quot;Delete a job by its ID&quot;)
+&nbsp;	@DeleteMapping(&quot;/delete/{id}&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt; deleteJob(
+&nbsp;			@Parameter(description = &quot;ID of the job to delete&quot;) @PathVariable Long id) throws HiringWireException {
+<b class="nc">&nbsp;		jobService.deleteJob(id);</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(new ResponseDTO(&quot;Deleted Successfully&quot;), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>

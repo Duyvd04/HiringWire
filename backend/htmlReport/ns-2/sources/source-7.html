@@ -1,0 +1,170 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > UserController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.hiringwire.api</a>
+</div>
+
+<h1>Coverage Summary for Class: UserController (com.hiringwire.api)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.hiringwire.api;
+&nbsp;
+&nbsp;import com.hiringwire.dto.ResponseDTO;
+&nbsp;import com.hiringwire.exception.HiringWireException;
+&nbsp;import com.hiringwire.model.request.LoginRequest;
+&nbsp;import com.hiringwire.model.request.UserRequest;
+&nbsp;import com.hiringwire.model.response.UserResponse;
+&nbsp;import com.hiringwire.service.UserService;
+&nbsp;import com.hiringwire.service.UserServiceImpl;
+&nbsp;import jakarta.validation.Valid;
+&nbsp;import jakarta.validation.constraints.Email;
+&nbsp;import jakarta.validation.constraints.NotBlank;
+&nbsp;import jakarta.validation.constraints.Pattern;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.validation.annotation.Validated;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@RestController
+&nbsp;@CrossOrigin
+&nbsp;@RequestMapping(&quot;/users&quot;)
+&nbsp;@Validated
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class UserController {
+&nbsp;
+&nbsp;	private final UserService userService;
+&nbsp;	private final UserServiceImpl userServiceImpl;
+&nbsp;
+&nbsp;	@PostMapping(&quot;/register&quot;)
+&nbsp;	public ResponseEntity&lt;UserResponse&gt; registerUser(@RequestBody @Valid UserRequest request) throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(userService.registerUser(request), HttpStatus.CREATED);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@PostMapping(&quot;/login&quot;)
+&nbsp;	public ResponseEntity&lt;UserResponse&gt; loginUser(@RequestBody @Valid LoginRequest loginRequest) throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(userService.loginUser(loginRequest), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@PostMapping(&quot;/changePass&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt; changePassword(@RequestBody @Valid LoginRequest loginRequest) throws HiringWireException {
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(userService.changePassword(loginRequest), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@PostMapping(&quot;/sendOtp/{email}&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt; sendOtp(@PathVariable @Email(message = &quot;{user.email.invalid}&quot;) String email) throws Exception {
+<b class="nc">&nbsp;		userService.sendOTP(email);</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(new ResponseDTO(&quot;OTP sent successfully.&quot;), HttpStatus.OK);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@GetMapping(&quot;/verifyOtp/{email}/{otp}&quot;)
+&nbsp;	public ResponseEntity&lt;ResponseDTO&gt; verifyOtp(
+&nbsp;			@PathVariable @NotBlank(message = &quot;{user.email.absent}&quot;) @Email(message = &quot;{user.email.invalid}&quot;) String email,
+&nbsp;			@PathVariable @Pattern(regexp = &quot;^[0-9]{6}$&quot;, message = &quot;{otp.invalid}&quot;) String otp
+&nbsp;	) throws HiringWireException {
+<b class="nc">&nbsp;		userService.verifyOtp(email, otp);</b>
+<b class="nc">&nbsp;		return new ResponseEntity&lt;&gt;(new ResponseDTO(&quot;OTP has been verified.&quot;), HttpStatus.ACCEPTED);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@GetMapping(&quot;/chat/users/{userId}/{accountType}&quot;)
+&nbsp;	public ResponseEntity&lt;List&lt;UserResponse&gt;&gt; getUsersForChat(@PathVariable Long userId, @PathVariable String accountType) {
+<b class="nc">&nbsp;		return ResponseEntity.ok(userServiceImpl.getUsersForChat(accountType, userId));</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-06-27 14:30</div>
+</div>
+</body>
+</html>
