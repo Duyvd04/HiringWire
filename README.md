@@ -3,7 +3,6 @@
 
 ## 📌 `README.md` for **HiringWire – Job Portal System**
 
-```markdown
 # 💼 HiringWire – Job Portal System
 
 A full-stack recruitment platform that connects candidates and employers, streamlining the hiring process.  
